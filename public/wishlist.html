@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="icon" href="favicon.ico">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+	<link rel="stylesheet" href="lib/styles/bootstrap-material-design.min.css">
+	<link rel="stylesheet" href="src/styles/colors.css">
+	<link rel="stylesheet" href="src/styles/override.css">
+	<link rel="stylesheet" href="src/styles/game.css">
+	<link rel="stylesheet" href="src/styles/main.css">
+	<title>Sale Waypoint</title>
+</head>
+<body>
+	<nav class="navbar navbar-expand-sm navbar-dark sticky-top">
+		<a class="navbar-brand" href="#">Sale<i id="icon" class="icon-wishlist material-icons">place</i>Waypoint</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+			<i class="material-icons">menu</i>
+		</button>
+		<div class="collapse navbar-collapse" id="navbar">
+			<ul class="navbar-nav">
+				<li id="linkGames" class="nav-item"><a class="nav-link" href="#">Games</a></li>
+				<li id="linkSales" class="nav-item"><a class="nav-link" href="#">On Sale</a></li>
+				<li id="linkWishlist" class="nav-item active"><a class="nav-link" href="#">Wishlist <span class="sr-only">(current)</span></a></li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Stores</a>
+					<div class="dropdown-menu">
+						<a data-store="steam" class="store-link dropdown-item" href="#">Steam</a>
+						<a data-store="xbox" class="store-link dropdown-item" href="#">Xbox</a>
+						<a data-store="playstation" class="store-link dropdown-item" href="#">Playstation</a>
+						<a data-store="nintendo" class="store-link dropdown-item" href="#">Nintendo</a>
+						<a data-store="itch" class="store-link dropdown-item" href="#">Itch</a>
+					</div>
+				</li>
+			</ul>
+			<button id="logout" class="btn btn-sm btn-danger ml-auto mb-0">Logout</button>
+		</div>
+	</nav>
+	<div id="content">
+		<div id="pageWishlist" class="container">
+			<div id="games" class="row justify-content-center"></div>
+		</div>
+	</div>
+	<section id="modals">
+		<!-- detail dialog -->
+		<div class="modal fade" id="dialogDetail" tabindex="-1" role="dialog" aria-labelledby="Detail dialog" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<div>
+							<h2 class="modal-title" id="detailTitle">Game title</h2>
+							<h4 class="detailDev" id="detailDev">Developer</h4>
+						</div>
+						<img class="pushable detail-wishlist" id="detailWishlist" src="/img/favorite_no.png">
+					</div>
+					<div class="modal-body">
+
+						<div class="collapse-group">
+							<p>About</p>
+							<button type="button" class="btn btn-primary collapse-button dropdown-toggle dropdown-toggle-split" data-toggle="collapse" data-target="#collapseAbout" aria-expanded="false" aria-controls="collapseAbout">
+								<span class="sr-only">Toggle Dropdown</span>
+							</button>
+						</div>
+
+						<div class="collapse" id="collapseAbout">
+							<div class="form-group bmd-form-group collapse-input">
+								<label for="detailInputAbout" class="bmd-label-static">About</label>
+								<textarea type="text" class="form-control" id="detailInputAbout"></textarea>
+							</div>
+						</div>
+
+						<div class="collapse-group">
+							<p>Image link</p>
+							<button type="button" class="btn btn-primary collapse-button dropdown-toggle dropdown-toggle-split" data-toggle="collapse" data-target="#collapseImage" aria-expanded="false" aria-controls="collapseImage">
+								<span class="sr-only">Toggle Dropdown</span>
+							</button>
+						</div>
+
+						<div class="collapse" id="collapseImage">
+							<div class="form-group bmd-form-group collapse-input">
+								<label for="detailInputImage" class="bmd-label-static">Image</label>
+								<input type="text" class="form-control" id="detailInputImage" value=" ">
+								<span class="bmd-help">A nice image for the game</span>
+							</div>
+						</div>
+
+						<!-- steam store group -->
+						<div class="store-group">
+							<div class="store-icon">
+								<img id="detailImageSteam" src="img/steam/yes.png"/>
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputSteamPrice" class="bmd-label-static">Steam price</label>
+								<input type="number" step="0.01" min="0" class="form-control" id="detailInputSteamPrice">
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputSteamSale" class="bmd-label-static">Steam sale</label>
+								<input type="number" step="1" min="0" max="100" class="form-control" id="detailInputSteamSale">
+							</div>
+						</div>
+						
+						<!-- xbox store group -->
+						<div class="store-group">
+							<div class="store-icon">
+								<img id="detailImageXbox" src="img/xbox/yes.png"/>
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputXboxPrice" class="bmd-label-static">Xbox price</label>
+								<input type="number" step="0.01" min="0" class="form-control" id="detailInputXboxPrice">
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputXboxSale" class="bmd-label-static">Xbox sale</label>
+								<input type="number" step="1" min="0" max="100" class="form-control" id="detailInputXboxSale">
+							</div>
+						</div>
+						
+						<!-- playstation store grou -->
+						<div class="store-group">
+							<div class="store-icon">
+								<img id="detailImagePlaystation" src="img/playstation/yes.png"/>
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputPlaystationPrice" class="bmd-label-static">Playstation price</label>
+								<input type="number" step="0.01" min="0" class="form-control" id="detailInputPlaystationPrice">
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputPlaystationSale" class="bmd-label-static">Playstation sale</label>
+								<input type="number" step="1" min="0" max="100" class="form-control" id="detailInputPlaystationSale">
+							</div>
+						</div>
+	
+						<!-- itch store group -->
+						<div class="store-group">
+							<div class="store-icon">
+								<img id="detailImageItch" src="img/itch/yes.png"/>
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputItchPrice" class="bmd-label-static">Itch price</label>
+								<input type="number" step="0.01" min="0" class="form-control" id="detailInputItchPrice">
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputItchSale" class="bmd-label-static">Itch sale</label>
+								<input type="number" step="1" min="0" max="100" class="form-control" id="detailInputItchSale">
+							</div>
+						</div>
+	
+						<!-- nintendo store group -->
+						<div class="store-group">
+							<div class="store-icon">
+								<img id="detailImageNintendo" src="img/nintendo/yes.png"/>
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputNintendoPrice" class="bmd-label-static">Nintendo price</label>
+								<input type="number" step="0.01" min="0" class="form-control" id="detailInputNintendoPrice">
+							</div>
+							<div class="form-group bmd-form-group">
+								<label for="detailInputNintendoSale" class="bmd-label-static">Nintendo sale</label>
+								<input type="number" step="1" min="0" max="100" class="form-control" id="detailInputNintendoSale">
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" type="button" data-dismiss="modal">CANCEL</button>
+						<button id="detailSubmitChanges" class="btn btn-sale" type="button" data-dismiss="modal">SAVE CHANGES</button>
+					  </div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section id="templates">
+		<template id="templateGame">
+			<div class="col-10 col-sm-6 col-md-4 col-lg-3 my-3">
+				<div class="game">
+					<div class="game-title"></div>
+					<img class="game-image" src="" onerror="this.src='img/image_not_found.jpg'">
+					<div class="game-banner">
+						<img class="game-store-steam" src="img/steam/yes.png">
+						<img class="game-store-xbox" src="img/xbox/no.png">
+						<img class="game-store-playstation" src="img/playstation/no.png">
+						<img class="game-store-itch" src="img/itch/sale.png">
+						<img class="game-store-nintendo" src="img/nintendo/yes.png">
+						<div class="game-favorite">
+							<img class="game-favorite-icon" src="img/favorite_yes.png">
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
+	</section>
+	<script src="lib/scripts/jquery.min.js"></script>
+	<script src="lib/scripts/popper.js"></script>
+	<script src="lib/scripts/bootstrap-material-design.js"></script>
+	<script>$("body").bootstrapMaterialDesign();</script>
+	<script src="/__/firebase/7.18.0/firebase-app.js"></script>
+	<script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
+	<script src="/__/firebase/7.18.0/firebase-auth.js"></script>
+	<script src="/__/firebase/init.js"></script>
+	<script src="src/scripts/main.js" type="module"></script>
+</body>
+</html>

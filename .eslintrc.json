@@ -1,0 +1,42 @@
+{
+	"env": {
+		"browser": true,
+		"es6": true
+	},
+	"parser": "babel-eslint",
+	"parserOptions": {
+		"sourceType": "module"
+	},
+	"rules": {
+		"arrow-body-style": ["warn", "as-needed"],
+		"arrow-spacing": ["warn", {"before": true, "after": true}],
+		"brace-style": ["warn", "1tbs", {"allowSingleLine": true}],
+		"comma-spacing": ["warn", {"before": false, "after": true}],
+		"eqeqeq": ["warn", "smart"],
+		"func-call-spacing": "warn",
+		"indent": ["warn", "tab", {"SwitchCase": 1}],
+		"key-spacing": ["warn", {"beforeColon": false, "afterColon": true}],
+		"new-parens": "warn",
+		"no-constant-condition": "warn",
+		"no-dupe-else-if": "warn",
+		"no-duplicate-case": "warn",
+		"no-extra-boolean-cast": "warn",
+		"no-extra-parens": "warn",
+		"no-extra-semi": "warn",
+		"no-floating-decimal": "warn",
+		"no-new-symbol": "error",
+		"no-self-assign": "warn",
+		"no-undef": "off",
+		"no-unneeded-ternary": "warn",
+		"no-unreachable": "warn",
+		"no-var": "warn",
+		"object-curly-spacing": "warn",
+		"prefer-arrow-callback": "warn",
+		"semi": ["warn", "always"],
+		"sort-imports": "warn",
+		"space-before-blocks": "warn",
+		"space-in-parens": "warn",
+		"valid-typeof": "warn",
+		"yoda": "warn"
+	}
+}

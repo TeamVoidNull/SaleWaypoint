@@ -1,0 +1,64 @@
+:root {
+	--gameWidth: 400px;
+	--gameBannerSize: 0.075;
+	--gameBannerHeight: 24px;
+	--gameBannerMultiplier: 1;
+}
+
+.game {
+	box-shadow: 0 0 12px black;
+	position: relative;
+	cursor: pointer;
+	--colorTitle: var(--colorForeground);
+	transition: box-shadow 250ms, opacity 250ms, transform 150ms;
+}
+
+.game * {
+	pointer-events: none;
+	user-select: none;
+}
+
+.game:hover {
+	box-shadow: 0 0 32px black;
+	opacity: 0.9;
+	--colorTitle: var(--colorSale);
+	transform: translateY(-2px) scale(1.02);
+}
+
+.game:active {
+	box-shadow: 0 0 16px black;
+	opacity: 0.8;
+	transform: translateY(1px) scale(1.01);
+}
+
+.game-image {
+	width: 100%;
+}
+
+.game-title {
+	background-color: var(--colorTitle);
+	padding: 5px 10px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: background-color 250ms;
+}
+
+.game-banner {
+	display: flex;
+	width: 100%;
+	height: calc(var(--gameBannerHeight) * var(--gameBannerMultiplier));
+	background-color: var(--colorGameBanner);
+}
+
+.game-banner img {
+	display: block;
+	padding: 2px;
+	width: calc(var(--gameBannerHeight) * var(--gameBannerMultiplier));
+	height: calc(var(--gameBannerHeight) * var(--gameBannerMultiplier));
+}
+
+.game-favorite {
+	margin-left: auto;
+}
+

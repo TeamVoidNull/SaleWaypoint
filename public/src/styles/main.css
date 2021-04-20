@@ -1,0 +1,138 @@
+/* This file is used to for our custom content used throughout the site */
+
+:root {
+	--storeIconSize: 50px;
+}
+
+#brandingImage {
+	margin: 10px auto 30px;
+	width: 200px;
+	height: 200px;
+}
+
+#pageHome {
+	justify-content: center;
+	text-align: center;
+}
+
+#fab {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    background: var(--colorSale);
+    color: var(--colorTextPrimary);
+    z-index: 100;
+}
+
+.pushable {
+	cursor: pointer;
+	transition: transform 150ms;
+}
+.pushable:hover { transform: translateY(-2px); }
+.pushable:active { transform: translateY(1px); }
+
+.detail-wishlist {
+	height: 2rem;
+	width: 2rem;
+	margin-top: .5rem;
+}
+
+.modal-content .modal-body {
+	padding-top: 0px;
+}
+
+.detailDev {
+	color: var(--colorSale);
+}
+
+#dialogDetail p {
+	font-size: 1.2em;
+	line-height: 200%;
+	margin-bottom: 0;
+}
+
+.btn.btn-primary.collapse-button {
+	color: var(--colorTextPrimary);
+	padding: 0px .75rem;
+	font-size: 1.2em;
+}
+
+.collapse-group {
+	display: flex;
+}
+
+#content {
+	opacity: 0;
+}
+
+#games {
+	opacity: 0;
+}
+
+.btn-sale {
+	color: var(--colorSale) !important;
+}
+
+#icon {
+	position: relative;
+	bottom: -4px;
+}
+
+#icon.icon-games {
+	color: var(--colorTextLink);
+}
+
+#icon.icon-sales {
+	color: var(--colorSale);
+}
+
+#icon.icon-wishlist {
+	color: var(--colorWishlist);
+}
+
+#icon.icon-stores {
+	color: var(--colorTextSecondary);
+}
+
+.modal-body {
+	height: calc(100vh - 300px);
+	min-height: 150px;
+	overflow-y: scroll;
+}
+
+.store-group {
+	display: flex;
+}
+
+.store-group > div {
+	flex: 1;
+	margin-left: 8px;
+	margin-right: 8px;
+}
+
+.store-icon {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	flex: 0 !important;
+}
+
+.store-icon > img {
+	display: block;
+	width: var(--storeIconSize);
+	height: var(--storeIconSize);
+	margin-left: auto;
+	margin-right: auto;
+}
+
+@media (max-width: 575.98px) {
+	.store-icon > img {
+		width: calc(0.8 * var(--storeIconSize));
+		height: calc(0.8 * var(--storeIconSize));
+	}
+}
+
+textarea {
+	resize: none;
+}
+
