@@ -17,17 +17,17 @@ export default class GameManager {
 	 * @private
 	 */
 	id;
-	/**
-	 * Reference to the Game's Document in FireStore
-	 * @type firebase.firestore.DocumentReference
-	 * @private
-	 */
-	ref;
-	/**
-	 * Snapshot of the Game's Document in FireStore
-	 * @type firebase.firestore.DocumentSnapshot
-	 * @private
-	 */
+	// /**
+	//  * Reference to the Game's Document in FireStore
+	//  * @type firebase.firestore.DocumentReference
+	//  * @private
+	//  */
+	// ref;
+	// /**
+	//  * Snapshot of the Game's Document in FireStore
+	//  * @type firebase.firestore.DocumentSnapshot
+	//  * @private
+	//  */
 	snapshot;
 	/**
 	 * Method to unsubscribe snapshot listeners
@@ -39,7 +39,7 @@ export default class GameManager {
 	constructor(id) {
 		if (GameManager.instance) return;
 		this.id = id;
-		this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES).doc(this.id);
+		// this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES).doc(this.id);
 		GameManager.instance = this;
 	}
 

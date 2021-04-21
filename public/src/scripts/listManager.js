@@ -39,7 +39,7 @@ export default class ListManager {
 
 	constructor(page) {
 		if (ListManager.instance) return;
-		this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES);
+		// this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES);
 		this.queriedRef = page.filterCollection(page.orderCollection(this.ref));
 		ListManager.instance = this;
 	}

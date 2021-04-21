@@ -5,11 +5,11 @@ import Listing from "../model/listing.js";
 import Store from "../model/store.js";
 
 export default class Conversions {
-	/**
-	 * Creates a Game instance from a DocumentSnapshot
-	 * @param {firebase.firestore.DocumentSnapshot} snapshot
-	 * @returns Game
-	 */
+	// /**
+	//  * Creates a Game instance from a DocumentSnapshot
+	//  * @param {firebase.firestore.DocumentSnapshot} snapshot
+	//  * @returns Game
+	//  */
 	static gameFromSnapshot(snapshot) {
 		let wishlist = snapshot.get(Constants.fb.field.WISHLIST);
 		let wishlisted = wishlist ? wishlist.includes(AuthManager.uid) : false;

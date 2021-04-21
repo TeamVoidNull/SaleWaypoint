@@ -56,18 +56,18 @@ export default class Page {
 	 */
 	main() {}
 
-	/**
-	 * Override to provide an order to the collection reference
-	 * @param {firebase.firestore.CollectionReference} ref
-	 */
+	// /**
+	//  * Override to provide an order to the collection reference
+	//  * @param {firebase.firestore.CollectionReference} ref
+	//  */
 	orderCollection(ref) {
 		return ref.orderBy(Constants.fb.field.TITLE);
 	}
 
-	/**
-	 * Override to provide a query on top of the collection reference
-	 * @param {firebase.firestore.CollectionReference} ref
-	 */
+	// /**
+	//  * Override to provide a query on top of the collection reference
+	//  * @param {firebase.firestore.CollectionReference} ref
+	//  */
 	filterCollection(ref) {
 		return ref;
 	}
