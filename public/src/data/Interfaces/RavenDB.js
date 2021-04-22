@@ -22,4 +22,10 @@ class RavenDB{
         session.delete(gameId);
         await session.saveChanges();
     }
+
+    async listGames(){
+        const results = await session
+            .query({collection: 'Games'})
+            .all(); // send query
+    }
 }
