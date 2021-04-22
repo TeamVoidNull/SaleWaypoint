@@ -1,6 +1,6 @@
 import { DocumentStore } from "ravendb";
 
-class RavenDB{
+export default class RavenDB{
 
     static instance;
 
