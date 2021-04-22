@@ -1,5 +1,5 @@
 import { DocumentStore } from "ravendb";
 
-const store = new DocumentStore("http://localhost:8080", "MyDistributedDB");
+const store = new DocumentStore("http://137.112.89.84:8080", "MyDistrubutedDB");
 store.initialize();
 export { store as documentStore }; 

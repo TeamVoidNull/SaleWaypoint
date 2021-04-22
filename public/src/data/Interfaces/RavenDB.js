@@ -12,7 +12,7 @@ class RavenDB{
 
     async getGame(gameId){ //Look in to loading
         const session = this.store.openSession(this.database)
-        const myQuery = session.query({collection: 'Games'}).whereEquals('id', gameId);
+        const myQuery = session.query({collection: 'Games'}).whereEquals('uid', gameId);
         const game = await myQuery.firstOrNull();
         return game
     }
