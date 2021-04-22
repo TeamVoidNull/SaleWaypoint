@@ -40,8 +40,17 @@ export default class ListManager {
 	constructor(page) {
 		if (ListManager.instance) return;
 		// this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES);
-		this.queriedRef = page.filterCollection(page.orderCollection(this.ref));
+		// this.queriedRef = page.filterCollection(page.orderCollection(this.ref));
 		ListManager.instance = this;
+	}
+
+	/* 
+	 * Get the list of games
+	 *
+	*/
+	getList(callback) {
+		//TODO: get a list of games
+		if (callback) callback();
 	}
 
 	/**
@@ -86,14 +95,16 @@ export default class ListManager {
 			|| stores.xbox.onSale || stores.playstation.onSale
 			|| stores.nintendo.onSale || stores.itch.onSale;
 
-		ListManager.instance.ref.add({
-			[Constants.fb.field.TITLE]: title,
-			[Constants.fb.field.DEVELOPER]: developer,
-			[Constants.fb.field.DESCRIPTION]: description,
-			[Constants.fb.field.IMAGE]: image,
-			[Constants.fb.field.STORES]: stores,
-			[Constants.fb.field.ONSALE]: onSale
-		});
+			//TODO: add game to database
+		// javascript code
+		// ListManager.instance.ref.add({
+		// 	[Constants.fb.field.TITLE]: title,
+		// 	[Constants.fb.field.DEVELOPER]: developer,
+		// 	[Constants.fb.field.DESCRIPTION]: description,
+		// 	[Constants.fb.field.IMAGE]: image,
+		// 	[Constants.fb.field.STORES]: stores,
+		// 	[Constants.fb.field.ONSALE]: onSale
+		// });
 		return true;
 	}
 
@@ -109,26 +120,32 @@ export default class ListManager {
 			|| stores.xbox.onSale || stores.playstation.onSale
 			|| stores.nintendo.onSale || stores.itch.onSale;
 
-		ListManager.instance.ref.doc(id).set({
-			[Constants.fb.field.DESCRIPTION]: description,
-			[Constants.fb.field.IMAGE]: image,
-			[Constants.fb.field.STORES]: stores,
-			[Constants.fb.field.ONSALE]: onSale
-		}, {merge: true});
+			//TODO: update games
+			//javascript code
+		// ListManager.instance.ref.doc(id).set({
+		// 	[Constants.fb.field.DESCRIPTION]: description,
+		// 	[Constants.fb.field.IMAGE]: image,
+		// 	[Constants.fb.field.STORES]: stores,
+		// 	[Constants.fb.field.ONSALE]: onSale
+		// }, {merge: true});
 	}
 
 	static wishlistGame(gameId, wishlisted)	{
-		let game = this.instance.ref.doc(gameId);
-		console.log(game);
-		game.get().then(snapshot => {
-			let wishlist = snapshot.get(Constants.fb.field.WISHLIST) || [];
-			if (wishlisted) {
-				wishlist.splice(wishlist.indexOf(AuthManager.uid, 1));
-			} else {
-				wishlist.push(AuthManager.uid);
-			}
-			game.set({wishlist: wishlist}, {merge: true});
-		});
+
+		//TODO: wishlist games
+
+		//javascript code
+		// let game = this.instance.ref.doc(gameId);
+		// console.log(game);
+		// game.get().then(snapshot => {
+		// 	let wishlist = snapshot.get(Constants.fb.field.WISHLIST) || [];
+		// 	if (wishlisted) {
+		// 		wishlist.splice(wishlist.indexOf(AuthManager.uid, 1));
+		// 	} else {
+		// 		wishlist.push(AuthManager.uid);
+		// 	}
+		// 	game.set({wishlist: wishlist}, {merge: true});
+		// });
 	}
 
 	/**
