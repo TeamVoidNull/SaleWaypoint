@@ -55,9 +55,9 @@ export default class PageGames extends Page {
 	main() {
 		let lm = new ListManager(this);
 		let fadedIn = false;
-		lm.startListeners(() => {
+		lm.getList(() => {
 			this.views.games.empty();
-			ListManager.instance.snapshots.forEach(item => {
+			/* ListManager.instance.snapshots.forEach(item => {
 				const game = Conversions.gameFromSnapshot(item);
 				for (let i = 0; i < 1; i++) {
 					this.views.games.append(this.createGameView(game));
@@ -66,7 +66,7 @@ export default class PageGames extends Page {
 			if (!fadedIn) {
 				this.views.games.animate({opacity: 1}, Page.fade);
 				fadedIn = true;
-			}
+			} */
 		});
 
 		this.views.addDialog.modal.on("show.bs.modal", () => {

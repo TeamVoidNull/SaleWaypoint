@@ -2,6 +2,7 @@ import AuthManager from "./authManager.js";
 import Constants from "./util/constants.js";
 import Conversions from "./util/conversions.js";
 import Game from "./model/game.js";
+import RavenDB from "../data/Interfaces/RavenDB"
 
 export default class ListManager {
 	/**
@@ -41,6 +42,8 @@ export default class ListManager {
 		if (ListManager.instance) return;
 		// this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES);
 		// this.queriedRef = page.filterCollection(page.orderCollection(this.ref));
+		new RavenDB();
+		this.ref = RavenDB.instance;
 		ListManager.instance = this;
 	}
 
@@ -50,6 +53,8 @@ export default class ListManager {
 	*/
 	getList(callback) {
 		//TODO: get a list of games
+		this.snapshots = this.ref.getList();
+		print(this.snapshots);
 		if (callback) callback();
 	}
 
