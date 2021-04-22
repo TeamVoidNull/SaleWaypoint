@@ -2,7 +2,7 @@ import AuthManager from "./authManager.js";
 import Constants from "./util/constants.js";
 import Conversions from "./util/conversions.js";
 import Game from "./model/game.js";
-import RavenDB from "../data/Interfaces/RavenDB"
+import RavenDB from "../data/Interfaces/RavenDB.js"
 
 export default class ListManager {
 	/**
