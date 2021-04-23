@@ -24,9 +24,16 @@ app.post('/addGame', async function(req, res){
     await session.store(req.body)
     await session.saveChanges();
     res.setHeader("Access-Control-Allow-Origin", "*")
-    res.setHeader("Access-Control-Allow-Methods", "POST")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
     res.send("Got your game");
+})
+
+app.options('/addGame', async function(req, res){
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.send();
 })
 
 function deleteGame(game){
