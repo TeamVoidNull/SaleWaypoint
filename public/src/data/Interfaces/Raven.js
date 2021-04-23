@@ -1,7 +1,10 @@
 export default class Raven{
     static instance;
 
-    static url = "http://137.112.89.83:3000/getGamesList"
+    mainurl = "http://137.112.89.83:3000/"
+    testurl = "http://localhost:3000/";
+
+    static url = "http://localhost:3000/";
 
     constructor(){
         if(this.instance) return;
@@ -12,7 +15,7 @@ export default class Raven{
     async getList(callback){
         console.log("Getting list of games");
         let req = new XMLHttpRequest();
-        req.open("GET", Raven.url, true);
+        req.open("GET", Raven.url + "getGamesList", true);
         req.onload = () => {
             if(req.status == 200){
                 console.log("Got games successfully");
@@ -26,5 +29,28 @@ export default class Raven{
             console.error(req.statusText)
         };
         req.send(null)
+    }
+
+    async addGame(game, callback){
+        console.log("Sending game to database");
+        delete game.wishlisted;
+        delete game.id;
+        console.log(game);
+        let req = new XMLHttpRequest();
+        req.open("POST", Raven.url + "addGame", true);
+        req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Got games successfully");
+                if (callback) callback();
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(JSON.stringify(game))
     }
 }

@@ -112,6 +112,10 @@ export default class ListManager {
 		// 	[Constants.fb.field.STORES]: stores,
 		// 	[Constants.fb.field.ONSALE]: onSale
 		// });
+		let game = new Game(title, developer, description, image, false);
+		game.stores = stores;
+		game.onSale = onSale;
+		ListManager.instance.ref.addGame(game);
 		return true;
 	}
 

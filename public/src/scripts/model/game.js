@@ -36,6 +36,11 @@ export default class Game {
 	 * @type {Map<StoreType, Listing>}
 	 */
 	stores;
+	/**
+	 * Store pricing information
+	 * @type {boolean}
+	 */
+	 onSale;
 
 	constructor(title="", developer="", description="", image="", wishlisted=false) {
 		this.title = title;
