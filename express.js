@@ -27,4 +27,10 @@ app.post('/addGame', async function(req, res){
     res.send("Got your game");
 })
 
+function deleteGame(game){
+    console.log("Calling delete");
+    session.delete(game);
+    session.saveChanges();
+}
+
 app.listen(3000);
