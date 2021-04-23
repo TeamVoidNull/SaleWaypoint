@@ -22,17 +22,20 @@ export default class AuthManager {
 	 * @param {CallableFunction} callback
 	 */
 	static startListeners(callback) {
-		firebase.auth().onAuthStateChanged(user => {
+		//firebase code
+		/* firebase.auth().onAuthStateChanged(user => {
 			if (!user) console.log("There is no user signed in.");
 			AuthManager.instance.user = user;
 			if (callback) callback();
-		});
+		}); */
+		if (callback) callback();
 	}
 
 	static signOut() {
-		firebase.auth().signOut().catch(error => {
+		//firebase code
+		/* firebase.auth().signOut().catch(error => {
 			console.log("Sign out error: ", error);
-		});
+		}); */
 	}
 }
 

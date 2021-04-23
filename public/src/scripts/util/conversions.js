@@ -10,7 +10,8 @@ export default class Conversions {
 	//  * @param {firebase.firestore.DocumentSnapshot} snapshot
 	//  * @returns Game
 	//  */
-	static gameFromSnapshot(snapshot) {
+	static gameFromSnapshot(item) {
+		let snapshot = new Map(Object.entries(item))
 		let wishlist = snapshot.get(Constants.fb.field.WISHLIST);
 		let wishlisted = wishlist ? wishlist.includes(AuthManager.uid) : false;
 		const game = new Game(

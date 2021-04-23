@@ -2,7 +2,7 @@ import AuthManager from "./authManager.js";
 import Constants from "./util/constants.js";
 import Conversions from "./util/conversions.js";
 import Game from "./model/game.js";
-import RavenDB from "../data/Interfaces/RavenDB.js"
+import Raven from "../data/Interfaces/Raven.js";
 
 export default class ListManager {
 	/**
@@ -14,8 +14,8 @@ export default class ListManager {
 
 
 	/**
-	 * Reference to the Collection of Games in Firestore
-	 * @type firebase.firestore.CollectionReference
+	 * Reference to the raven data model
+	 * @type Raven
 	 * @private
 	 */
 	ref;
@@ -40,10 +40,10 @@ export default class ListManager {
 
 	constructor(page) {
 		if (ListManager.instance) return;
-		// this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES);
+		//this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES);
 		// this.queriedRef = page.filterCollection(page.orderCollection(this.ref));
-		new RavenDB();
-		this.ref = RavenDB.instance;
+		new Raven();
+		this.ref = Raven.instance;
 		ListManager.instance = this;
 	}
 
@@ -53,9 +53,11 @@ export default class ListManager {
 	*/
 	getList(callback) {
 		//TODO: get a list of games
-		this.snapshots = this.ref.getList();
-		print(this.snapshots);
-		if (callback) callback();
+		console.log("Get list called");
+		this.ref.getList((snapshots) => {
+			ListManager.instance.snapshots = snapshots;
+			if(callback) callback();
+		})
 	}
 
 	/**

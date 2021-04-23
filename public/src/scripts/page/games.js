@@ -57,16 +57,24 @@ export default class PageGames extends Page {
 		let fadedIn = false;
 		lm.getList(() => {
 			this.views.games.empty();
+			console.log(ListManager.instance.snapshots);
+			ListManager.instance.snapshots.forEach(item => {
+				const game = Conversions.gameFromSnapshot(item);
+				console.log(game);
+				for (let i = 0; i < 1; i++) {
+					this.views.games.append(this.createGameView(game));
+				}
+			});
 			/* ListManager.instance.snapshots.forEach(item => {
 				const game = Conversions.gameFromSnapshot(item);
 				for (let i = 0; i < 1; i++) {
 					this.views.games.append(this.createGameView(game));
 				}
-			});
+			});*/
 			if (!fadedIn) {
 				this.views.games.animate({opacity: 1}, Page.fade);
 				fadedIn = true;
-			} */
+			} 
 		});
 
 		this.views.addDialog.modal.on("show.bs.modal", () => {

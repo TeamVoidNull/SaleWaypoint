@@ -22,7 +22,7 @@ export default class Constants {
 		 * @abstract
 		 */
 		static field = class {
-			static TITLE = "title";
+			static TITLE = "name";
 			static DEVELOPER = "developer";
 			static DESCRIPTION = "description";
 			static IMAGE = "image";
