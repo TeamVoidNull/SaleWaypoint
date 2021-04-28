@@ -3,17 +3,13 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"start": "nodemon express.js",
-		"serve": "firebase serve",
-		"deploy": "firebase deploy",
+		"start": "nodemon server.js",
 		"lint": "eslint public/src/scripts"
 	},
 	"dependencies": {
 		"babel-eslint": "^10.1.0",
 		"eslint": "^7.12.1",
 		"express": "^4.17.1",
-		"firebase": "7.23.0",
-		"firebase-tools": "^8.12.1",
 		"jquery": "3.5.1",
 		"ravendb": "^5.0.3"
 	}
