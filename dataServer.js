@@ -34,7 +34,8 @@ app.post('/addGame', async function(req, res){
     var newGame = JSON.parse(req.body)
 
     await session.store(req.body, newGameId)
-    await redisClient.lpush(newGameId, newGame.title)
+    await redisClient.lpush(newGameId, newGame.title, reids.print)
+
 
     await session.saveChanges();
    
