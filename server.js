@@ -13,13 +13,19 @@ app.use('/addGame', bodyParser.json())
 
 app.get('/getGamesList', async function(req, res){
     console.log("Recieved game list request")
+    let results = await session.query({collection: "Games"}).all()
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.send(results);
 })
 
 app.post('/addGame', async function(req, res){
     console.log("Recieved add game request");
-    //redis
-    var newGame = JSON.parse(req.body)
-
+    console.log(req.body)
+    await session.store(req.body)
+    await session.saveChanges();
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
     res.send("Got your game");
 })
 
