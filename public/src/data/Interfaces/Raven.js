@@ -1,10 +1,12 @@
 export default class Raven{
     static instance;
 
-    //mainurl = "http://137.112.89.83:3000/"
-    //testurl = "http://localhost:3000/";
+    static test = false;
 
-    static url = "http://137.112.89.83:3000/"
+    static mainurl = "http://137.112.89.83:3000/"
+    static testurl = "http://localhost:3000/";
+
+    static url = Raven.test ? Raven.testurl : Raven.mainurl;
 
     constructor(){
         if(this.instance) return;
