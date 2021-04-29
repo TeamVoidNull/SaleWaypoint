@@ -4,7 +4,7 @@ var raven = require("ravendb");
 var bodyParser = require("body-parser");
 
 let raven_database = "MyDistrubutedDB";
-let store = new raven.DocumentStore("http:localhost:8080", raven_database);
+let store = new raven.DocumentStore("http://localhost:8080", raven_database);
 store.initialize();
 let session = store.openSession(raven_database);
 
