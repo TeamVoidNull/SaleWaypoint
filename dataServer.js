@@ -34,7 +34,9 @@ app.post('/addGame', async function(req, res){
     var newGame = JSON.parse(req.body)
 
     await session.store(req.body, newGameId)
-    await redisClient.lpush(newGameId, newGame.title, reids.print)
+    redisClient.lpush(newGameId, newGame.title, reids.print)
+
+    console.log("In redis")
 
 
     await session.saveChanges();
@@ -43,7 +45,6 @@ app.post('/addGame', async function(req, res){
 
 
     //redis insert
-    var newGame = JSON.parse(req.body)
     
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
