@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"start": "nodemon server.js",
+		"server": "nodemon server.js",
 		"data": "nodemon dataServer.js",
 		"lint": "eslint public/src/scripts"
 	},
