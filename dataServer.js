@@ -30,11 +30,25 @@ app.get('/getGamesList', async function(req, res){
 app.post('/addGame', async function(req, res){
     console.log("Recieved add game request");
     console.log(req.body)
-    await session.store(req.body)
+    newGameId = uuidv4()
+    var newGame = JSON.parse(req.body)
+
+    await session.store(req.body, newGameId)
+    await redisClient.lpush(newGameId, newGame.title, reids.print)
+
+
     await session.saveChanges();
+   
+    
+
+
+    //redis insert
+    var newGame = JSON.parse(req.body)
+    
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+
     res.send("Got your game");
 })
 
@@ -45,11 +59,11 @@ app.options('/addGame', async function(req, res){
     res.send();
 })
 
-// function deleteGame(game){
-//     console.log("Calling delete");
-//     session.delete(game);
-//     session.saveChanges();
-// }
+function deleteGame(game){
+    console.log("Calling delete");
+    session.delete(game);
+    session.saveChanges();
+}
 
 
 
@@ -61,3 +75,10 @@ let test = false;
 let frontUrl = test ? testUrl : mainUrl;
 
 app.listen(3001);
+
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
