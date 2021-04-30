@@ -31,7 +31,7 @@ app.post('/addGame', async function(req, res){
     console.log("Recieved add game request");
     console.log(req.body)
     newGameId = uuidv4()
-    var newGame = JSON.parse(req.body)
+    var newGame = req.body
 
     await session.store(req.body, newGameId)
     redisClient.lpush(newGameId, newGame.title, reids.print)
@@ -77,6 +77,8 @@ let frontUrl = test ? testUrl : mainUrl;
 
 app.listen(3001);
 
+
+//Make this better
 function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);

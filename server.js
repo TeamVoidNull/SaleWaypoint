@@ -3,10 +3,21 @@ var app = express();
 var raven = require("ravendb");
 var bodyParser = require("body-parser");
 
+//Raven stuff
 let database = "MyDistrubutedDB";
 let store = new raven.DocumentStore("http://137.112.89.84:8080", "MyDistrubutedDB");
 store.initialize();
 let session = store.openSession(database);
+
+//Redis Stuff
+let redis_port = 6379
+let redis_server = '137.112.89.84'
+let redis = require("redis");
+let redisClient = redis.createClient({
+    port: redis_port,
+    host: redis_server,
+    // password: 'myFunnyPassword'
+})
 
 app.use('/', express.static("./public") );
 app.use('/addGame', bodyParser.json())
@@ -18,10 +29,44 @@ app.get('/getGamesList', async function(req, res){
     res.send(results);
 })
 
+//get full list of game ids for a specific store
+app.get('/getGamesByStore/:store', async function(req, res){
+    let store = req.params.store;
+    console.log("Store ", store)
+    redisClient.lrange(store, 0, -1, function(err, reply){
+        console.log(reply)
+        res.send(reply)
+    }) 
+})
+
 app.post('/addGame', async function(req, res){
     console.log("Recieved add game request");
     console.log(req.body)
-    await session.store(req.body)
+    newGameId = uuidv4()
+    var newGame = req.body
+
+    await session.store(req.body, newGameId)
+    redisClient.lpush(newGameId, newGame.title, redis.print)
+    redisClient.lpush('games', newGameId)
+    
+    //add games to stores
+    if(newGame.stores.itch.listed){
+        redisClient.lpush('itch', newGameId)
+    }
+    if(newGame.stores.nintendo.listed){
+        redisClient.lpush('nintendo', newGameId)
+    }
+    if(newGame.stores.playstation.listed){
+        redisClient.lpush('playstation', newGameId)
+    }
+    if(newGame.stores.steam.listed){
+        redisClient.lpush('steam', newGameId)
+    }
+    if(newGame.stores.xbox.listed){
+        redisClient.lpush('xbox', newGameId)
+    }
+
+    console.log("In redis")
     await session.saveChanges();
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
@@ -43,3 +88,11 @@ function deleteGame(game){
 }
 
 app.listen(3000);
+
+//Make this better
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
