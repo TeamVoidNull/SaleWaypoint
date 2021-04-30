@@ -10,7 +10,7 @@ let session = store.openSession(raven_database);
 
 //Redis Stuff
 let redis_port = 6379
-let redis_server = 'http://localhost'
+let redis_server = 'http://127.0.0.1'
 let redis = require("redis");
 let redisClient = redis.createClient({
     port: redis_port,
