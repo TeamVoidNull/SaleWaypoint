@@ -34,6 +34,26 @@ export default class Raven{
         req.send(null)
     }
 
+    async getStoreList(store, callback){
+        console.log("Getting list of games for: " + store);
+        let req = new XMLHttpRequest();
+        req.open("GET", Raven.url + "getGamesByStore/" + store, true);
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Got games successfully");
+                console.log(JSON.parse(req.responseText));
+                if (callback) callback(new Map(Object.entries(JSON.parse(req.responseText))));
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(null)
+    }
+
     async addGame(game, callback){
         console.log("Sending game to database");
         delete game.wishlisted;

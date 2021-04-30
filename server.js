@@ -35,7 +35,14 @@ app.get('/getGamesByStore/:store', async function(req, res){
     console.log("Store ", store)
     redisClient.lrange(store, 0, -1, function(err, reply){
         console.log(reply)
-        res.send(reply)
+        ravenSession.query({collection: "Games"})
+            .whereIn("id", reply)
+            .all()
+            .then((results) => {
+                console.log(results);
+                res.send(results);
+        })
+        
     }) 
 })
 

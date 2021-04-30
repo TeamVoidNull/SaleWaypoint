@@ -20,6 +20,12 @@ export default class ListManager {
 	 */
 	ref;
 	/**
+	 * String for which store to get games from
+	 * @type String
+	 * @private
+	 */
+	store;
+	/**
 	 * Reference to the queried Collection of Games in Firestore
 	 * @type firebase.firestore.CollectionReference
 	 * @private
@@ -42,6 +48,8 @@ export default class ListManager {
 		if (ListManager.instance) return;
 		//this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES);
 		// this.queriedRef = page.filterCollection(page.orderCollection(this.ref));
+		this.store = page.getStore();
+		console.log("Set store to: "+ this.store);
 		new Raven();
 		this.ref = Raven.instance;
 		ListManager.instance = this;
@@ -54,10 +62,20 @@ export default class ListManager {
 	getList(callback) {
 		//TODO: get a list of games
 		console.log("Get list called");
-		this.ref.getList((snapshots) => {
-			ListManager.instance.snapshots = snapshots;
-			if(callback) callback();
-		})
+		console.log(this.store);
+		if(!this.store){
+			this.ref.getList((snapshots) => {
+				ListManager.instance.snapshots = snapshots;
+				if(callback) callback();
+			})
+		}
+		else {
+			console.log("Store is: " + this.store);
+			this.ref.getStoreList(this.store, (snapshots) => {
+				ListManager.instance.snapshots = snapshots;
+				if(callback) callback();
+			})
+		}
 	}
 
 	/**

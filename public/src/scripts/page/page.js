@@ -71,4 +71,11 @@ export default class Page {
 	filterCollection(ref) {
 		return ref;
 	}
+
+	// /**
+	//  * Override to provide a different store page
+	//  */
+	getStore() {
+		return null;
+	}
 }
