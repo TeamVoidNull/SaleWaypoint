@@ -1,13 +1,13 @@
 var express = require("express");
 var app = express();
-var raven = require("ravendb");
 var bodyParser = require("body-parser");
 
 //Raven stuff
+let raven = require("ravendb");
 let database = "MyDistrubutedDB";
 let store = new raven.DocumentStore("http://137.112.89.84:8080", "MyDistrubutedDB");
 store.initialize();
-let session = store.openSession(database);
+let ravenSession = store.openSession(database);
 
 //Redis Stuff
 let redis_port = 6379
@@ -24,7 +24,7 @@ app.use('/addGame', bodyParser.json())
 
 app.get('/getGamesList', async function(req, res){
     console.log("Recieved game list request")
-    let results = await session.query({collection: "Games"}).all()
+    let results = await ravenSession.query({collection: "Games"}).all()
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.send(results);
 })
@@ -45,7 +45,7 @@ app.post('/addGame', async function(req, res){
     newGameId = uuidv4()
     var newGame = req.body
 
-    await session.store(req.body, newGameId)
+    await ravenSession.store(req.body, newGameId)
     redisClient.lpush(newGameId, newGame.title, redis.print)
     redisClient.lpush('games', newGameId)
     
@@ -67,7 +67,7 @@ app.post('/addGame', async function(req, res){
     }
 
     console.log("In redis")
-    await session.saveChanges();
+    await ravenSession.saveChanges();
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
@@ -83,8 +83,8 @@ app.options('/addGame', async function(req, res){
 
 function deleteGame(game){
     console.log("Calling delete");
-    session.delete(game);
-    session.saveChanges();
+    ravenSession.delete(game);
+    ravenSession.saveChanges();
 }
 
 app.listen(3000);
