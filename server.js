@@ -1,7 +1,15 @@
 var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
+const { exit } = require("process");
 var fs = require("fs");
+
+let Actions = {
+    create: "CREATE",
+    update: "UPDATE",
+    wishlist: "WISHLIST",
+    addUser: "USER"
+}
 
 //Set up an empty log and completion tags
 let actionsLog = [];
@@ -21,8 +29,8 @@ try {
         actionsCompleted.redis = 0;
     }
 }catch(err){
-    console.error("Error with fs: " + err);
-    exit();
+    console.error("Error with fs in completed file: " + err);
+    process.exit();
 }
 
 //Populate actionsLog if file exists
@@ -36,8 +44,8 @@ try {
         fs.writeFileSync(actionsLogFile, '{"n":0}')
     }
 }catch(err){
-    console.error("Error with fs: " + err);
-    exit();
+    console.error("Error with fs in log file: " + err);
+    process.exit();
 }
 
 //Initialize Raven database
@@ -51,7 +59,6 @@ let ravenSession = store.openSession(database);
 let redis_port = 6379
 let redis_server = '137.112.89.84'
 let redis = require("redis");
-const { exit } = require("process");
 let redisClient = redis.createClient({
     port: redis_port,
     host: redis_server,
@@ -106,15 +113,30 @@ app.get('/getGamesByStore/:store', async function(req, res){
     }) 
 })
 
+//Add a game
 app.post('/addGame', async function(req, res){
     console.log("Recieved add game request");
-    console.log(req.body)
-    newGameId = uuidv4()
-    var newGame = req.body
 
-    await ravenSession.store(req.body, newGameId)
-    redisClient.lpush(newGameId, newGame.title, redis.print)
-    redisClient.lpush('games', newGameId)
+    //Get game from request and generate UID
+    newGameId = uuidv4();
+    var newGame = req.body;
+    newGame.id = newGameId;
+    console.log("New game is: \n" + newGame);
+
+    //Update the logs
+    let gameJSON = {
+        action: Actions.create,
+        data: newGame
+    };
+    actionsLog.push(gameJSON);
+    fs.appendFile(actionsLogFile, "," + JSON.stringify(gameJSON), () => {});
+
+    //Add game to raven
+    await ravenSession.store(newGame);
+
+    //Don't think we need these
+    //redisClient.lpush(newGameId, newGame.title, redis.print)
+    //redisClient.lpush('games', newGameId)
     
     //add games to stores
     if(newGame.stores.itch.listed){
@@ -132,9 +154,14 @@ app.post('/addGame', async function(req, res){
     if(newGame.stores.xbox.listed){
         redisClient.lpush('xbox', newGameId)
     }
-
+    actionsCompleted.redis = actionsLog.length;
     console.log("In redis")
+
     await ravenSession.saveChanges();
+    actionsCompleted.raven = actionsLog.length;
+
+    fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+    
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
