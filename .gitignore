@@ -30,3 +30,5 @@ yarn-error.log*
 # firebase-debug.log*
 
 # .firebase/
+actions_log.txt
+actions_completed.txt

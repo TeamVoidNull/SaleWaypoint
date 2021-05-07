@@ -1,23 +1,82 @@
 var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
+var fs = require("fs");
 
-//Raven stuff
+//Set up an empty log and completion tags
+let actionsLog = [];
+let actionsCompleted = {};
+
+let actionsLogFile = "actions_log.txt";
+let completedFile = "actions_completed.txt";
+
+//Populate actionsCompleted if file exists
+try {
+    if(fs.existsSync(completedFile)){
+        actionsCompleted = JSON.parse(fs.readFileSync(completedFile));
+    }
+    else{
+        actionsCompleted.raven = 0;
+        actionsCompleted.neo = 0;
+        actionsCompleted.redis = 0;
+    }
+}catch(err){
+    console.error("Error with fs: " + err);
+    exit();
+}
+
+//Populate actionsLog if file exists
+try {
+    if(fs.existsSync(actionsLogFile)){
+        actionsLog = JSON.parse("[" + fs.readFileSync(actionsLogFile) + "]");
+        checkActions();
+    }
+    else {
+        //Write a placeholder item for the start of the log
+        fs.writeFileSync(actionsLogFile, '{"n":0}')
+    }
+}catch(err){
+    console.error("Error with fs: " + err);
+    exit();
+}
+
+//Initialize Raven database
 let raven = require("ravendb");
 let database = "MyDistrubutedDB";
 let store = new raven.DocumentStore("http://137.112.89.84:8080", "MyDistrubutedDB");
 store.initialize();
 let ravenSession = store.openSession(database);
 
-//Redis Stuff
+//Initialize Redis database
 let redis_port = 6379
 let redis_server = '137.112.89.84'
 let redis = require("redis");
+const { exit } = require("process");
 let redisClient = redis.createClient({
     port: redis_port,
     host: redis_server,
     // password: 'myFunnyPassword'
 })
+
+//Make sure all databases are up to date on server start
+function checkActions(){
+    if(!(actionsCompleted.raven == actionsLog.length)) updateRaven();
+    if(!(actionsCompleted.neo == actionsLog.length)) updateNeo();
+    if(!(actionsCompleted.redis == actionsLog.length)) updateRedis();
+}
+
+//Check all log entries since last update and apply actions
+function updateRaven(){
+
+}
+
+function updateNeo(){
+
+}
+
+function updateRedis(){
+
+}
 
 app.use('/', express.static("./public") );
 app.use('/addGame', bodyParser.json())
@@ -29,7 +88,7 @@ app.get('/getGamesList', async function(req, res){
     res.send(results);
 })
 
-//get full list of game ids for a specific store
+//get full list of games for a specific store
 app.get('/getGamesByStore/:store', async function(req, res){
     let store = req.params.store;
     console.log("Store ", store)
