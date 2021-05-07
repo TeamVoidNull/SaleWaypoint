@@ -99,6 +99,7 @@ app.get('/getGamesByStore/:store', async function(req, res){
             .all()
             .then((results) => {
                 console.log(results);
+                res.setHeader("Access-Control-Allow-Origin", "*")
                 res.send(results);
         })
         
