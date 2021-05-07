@@ -22,15 +22,21 @@
 	<div id="content">
 		<div id="pageLogin" class="text-center">
 			<img id="brandingImage" src="./img/SaleWaypoint.png">
-		<form action="/authenticate", method="POST">
+		<form action="/register", method="POST">
+			<label for="fname">First Name:</label><br>
+			<input type="text" id="first_name" name="first_name"><br>
+			<label for="username">Last Name:</label><br>
+			<input type="text" id="last_name" name="last_name"><br>
+			<label for="username">Email:</label><br>
+			<input type="text" id="email" name="email"><br>
 			<label for="username">Username:</label><br>
 			<input type="text" id="username" name="username"><br>
 			<label for="password">Password:</label><br>
 			<input type="password" id="password" name="password"><br><br>
 			<input type="submit" value="Login">
 		</form> 
-		<a href="register.html">Don't have an account? Register</a>
 	</div>
+	
 	<section id="modals">
 	</section>
 	<section id="templates">

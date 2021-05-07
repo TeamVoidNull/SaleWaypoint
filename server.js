@@ -1,3 +1,4 @@
+const argon2 = require('argon2')
 var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
@@ -80,6 +81,8 @@ function updateRedis(){
 
 app.use('/', express.static("./public") );
 app.use('/addGame', bodyParser.json())
+app.use('/register', bodyParser.urlencoded({extended:false}))
+app.use('/authenticate', bodyParser.urlencoded({extended:false}))
 
 app.get('/getGamesList', async function(req, res){
     console.log("Recieved game list request")
@@ -141,6 +144,54 @@ app.post('/addGame', async function(req, res){
     res.send("Got your game");
 })
 
+app.post('/register', async function(req, res){
+    console.log("Recieved register request")
+    console.log(req.body)
+    const passHash = await encryptPassword(req.body.password)
+
+    var newUser = {
+        username: req.body.username,
+        password: passHash,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        "@metadata": {"@collection": "Users"}
+    }
+
+    console.log('pog')
+
+    await ravenSession.store(newUser)
+    console.log('pogger')
+    await ravenSession.saveChanges();
+    console.log('poggerino')
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.redirect("/games.html");
+})
+
+app.post('/authenticate', async function(req, res){
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    console.log("Recieved auth request")
+    console.log(req.body)
+
+    results = await ravenSession.query({collection: "users"})
+            .whereEquals("username", req.body.username)
+            .firstOrNull()
+    if(results == null){
+        res.sendStatus(404)
+    }
+
+    const valid = await validatePassword(req.body.password, results.password)
+    console.log(valid)
+    if(valid){
+        res.redirect("/games.html")
+    }else{
+        res.sendStatus(401)
+    }
+})
+
 app.options('/addGame', async function(req, res){
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
@@ -163,3 +214,16 @@ function uuidv4() {
       return v.toString(16);
     });
   }
+
+async function encryptPassword(password){
+    const hash = await argon2.hash(password)
+    return hash
+}
+
+async function validatePassword(password, hash){
+    if (await argon2.verify(hash, password)){
+        return true
+    }else{
+        return false
+    }
+}
