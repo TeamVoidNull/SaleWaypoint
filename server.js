@@ -1,5 +1,6 @@
 const argon2 = require('argon2')
 var express = require("express");
+var cookie_parser = require('cookie-parser')
 var app = express();
 var bodyParser = require("body-parser");
 const { exit } = require("process");
@@ -69,6 +70,11 @@ try {
     console.error("Error with fs in log file: " + err);
     process.exit();
 }
+
+//Initialize Neo4j database
+const neo4j = require('neo4j-driver')
+let uri = 'bolt://137.112.89.83:7687'
+const neoDriver = neo4j.driver(uri, neo4j.auth.basic("neo4j", "zee2Coo9"))
 
 //Make sure all databases are up to date on server start
 function checkActions(){
@@ -149,6 +155,7 @@ app.use('/', express.static("./public") );
 app.use('/addGame', bodyParser.json())
 app.use('/register', bodyParser.urlencoded({extended:false}))
 app.use('/authenticate', bodyParser.urlencoded({extended:false}))
+app.use(cookie_parser('myFunnyCookie'))
 
 app.get('/getGamesList', async function(req, res){
     console.log("Recieved game list request")
@@ -197,7 +204,7 @@ app.post('/addGame', async function(req, res){
     //redisClient.lpush('games', newGameId)
     
     //add games to stores
-    /* try{
+     try{
         if(newGame.stores.itch.listed){
             redisClient.lpush('itch', newGameId)
         }
@@ -218,7 +225,7 @@ app.post('/addGame', async function(req, res){
     }catch(error){
         console.log("Redis unresponsive, attempting reconnection.");
         reconnectRedis();
-    } */
+    } 
 
     //Try to save changes to Raven
     try{
@@ -230,6 +237,15 @@ app.post('/addGame', async function(req, res){
     }catch(error){
         console.log("Raven unresponsive, attempting reconnection.");
         reconnectRaven();
+    }
+
+    //add game to neo
+    const session = neoDriver.session()
+    const query = `CREATE (a:Game {gameId: "${newGame.id}", title: "${newGame.title}"}) RETURN a`
+    try{
+        await session.run(query)
+    }finally{
+        await session.close()
     }
 
     fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
@@ -245,6 +261,7 @@ app.post('/register', async function(req, res){
     console.log(req.body)
     const passHash = await encryptPassword(req.body.password)
 
+    //Add to raven
     var newUser = {
         username: req.body.username,
         password: passHash,
@@ -252,16 +269,22 @@ app.post('/register', async function(req, res){
         last_name: req.body.last_name,
         "@metadata": {"@collection": "Users"}
     }
-
-    console.log('pog')
-
     await ravenSession.store(newUser)
-    console.log('pogger')
     await ravenSession.saveChanges();
-    console.log('poggerino')
+
+    //Add to neo
+    const session = neoDriver.session()
+    const query = `CREATE (a:User {username: "${req.body.username}"}) RETURN a`
+    try{
+        await session.run(query)
+    }finally{
+        await session.close()
+    }
+
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.cookie('user', req.body.username, {signed: true})
     res.redirect("/games.html");
 })
 
@@ -282,7 +305,9 @@ app.post('/authenticate', async function(req, res){
     const valid = await validatePassword(req.body.password, results.password)
     console.log(valid)
     if(valid){
+        res.cookie('user', req.body.username, {signed: false})
         res.redirect("/games.html")
+        
     }else{
         res.sendStatus(401)
     }

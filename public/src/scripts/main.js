@@ -44,7 +44,7 @@ $(() => {
 	initializePage();
 	AuthManager.startListeners(() => {
 		console.log(`Auth state changed: signedIn = ${AuthManager.isSignedIn}`);
-		//checkForRedirects();
+		checkForRedirects();
 		page.main();
 	});
 

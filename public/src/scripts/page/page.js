@@ -25,7 +25,7 @@ export default class Page {
 		$("#linkGames").on("click", this.redirect.bind(this, "./games.html"));
 		$("#linkSales").on("click", this.redirect.bind(this, "./sales.html"));
 		$("#linkWishlist").on("click", this.redirect.bind(this, "./wishlist.html"));
-		$("#logout").on("click", AuthManager.signOut);
+		$("#logout").on("click", this.logout.bind());
 		$("#content").animate({opacity: 1}, Page.fade);
 
 		$(".store-link").on("click", (event) => {
@@ -39,6 +39,12 @@ export default class Page {
 		$("#content").animate({opacity: 0}, Page.fade, () => {
 			window.location.href = url;
 		});
+	}
+
+	logout(){
+		console.log("Loggin Out")
+		AuthManager.signOut()
+		window.location.href = "/";
 	}
 
 	/**

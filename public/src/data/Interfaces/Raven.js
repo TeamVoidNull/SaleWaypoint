@@ -1,7 +1,7 @@
 export default class Raven{
     static instance;
 
-    static test = false;
+    static test = true;
 
     static mainurl = "http://137.112.89.83:3000/"
     static testurl = "http://localhost:3000/";

@@ -1,3 +1,5 @@
+
+
 export default class AuthManager {
 	/**
 	 * @type AuthManager
@@ -9,6 +11,13 @@ export default class AuthManager {
 	 * @private
 	 */
 	user;
+
+	static test = true;
+
+    static mainurl = "http://137.112.89.83:3000/"
+    static testurl = "http://localhost:3000/";
+
+    static url = AuthManager.test ? AuthManager.testurl : AuthManager.mainurl;
 
 	static get isSignedIn() {
 		return !!AuthManager.instance.user;
@@ -22,20 +31,17 @@ export default class AuthManager {
 	 * @param {CallableFunction} callback
 	 */
 	static startListeners(callback) {
-		//firebase code
-		/* firebase.auth().onAuthStateChanged(user => {
-			if (!user) console.log("There is no user signed in.");
-			AuthManager.instance.user = user;
-			if (callback) callback();
-		}); */
+		var biscuit = document.cookie
+		console.log("Authing")
+		console.log(biscuit)
+		AuthManager.instance.user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
+
 		if (callback) callback();
 	}
 
 	static signOut() {
-		//firebase code
-		/* firebase.auth().signOut().catch(error => {
-			console.log("Sign out error: ", error);
-		}); */
+		console.log("Lonking oue")
+		document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; Path=/;";
 	}
 }
 
