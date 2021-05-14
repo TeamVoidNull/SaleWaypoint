@@ -1,5 +1,6 @@
 const argon2 = require('argon2')
 var express = require("express");
+var cookie_parser = require('cookie-parser')
 var app = express();
 var bodyParser = require("body-parser");
 const { exit } = require("process");
@@ -90,6 +91,7 @@ app.use('/', express.static("./public") );
 app.use('/addGame', bodyParser.json())
 app.use('/register', bodyParser.urlencoded({extended:false}))
 app.use('/authenticate', bodyParser.urlencoded({extended:false}))
+app.use(cookie_parser('myFunnyCookie'))
 
 app.get('/getGamesList', async function(req, res){
     console.log("Recieved game list request")
@@ -193,6 +195,7 @@ app.post('/register', async function(req, res){
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.cookie('user', req.body.username, {signed: true})
     res.redirect("/games.html");
 })
 
@@ -213,7 +216,9 @@ app.post('/authenticate', async function(req, res){
     const valid = await validatePassword(req.body.password, results.password)
     console.log(valid)
     if(valid){
+        res.cookie('user', req.body.username, {signed: false})
         res.redirect("/games.html")
+        
     }else{
         res.sendStatus(401)
     }
