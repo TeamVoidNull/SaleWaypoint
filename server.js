@@ -12,6 +12,27 @@ let Actions = {
     addUser: "USER"
 }
 
+let reconnecting = {};
+
+//Initialize Raven database
+let raven = require("ravendb");
+let database = "MyDistrubutedDB";
+let store = new raven.DocumentStore("http://137.112.89.84:8080", "MyDistrubutedDB");
+store.initialize();
+let ravenSession = store.openSession(database);
+reconnecting.raven = false;
+
+//Initialize Redis database
+let redis_port = 6379
+let redis_server = '137.112.89.84'
+let redis = require("redis");
+let redisClient = redis.createClient({
+    port: redis_port,
+    host: redis_server,
+    // password: 'myFunnyPassword'
+})
+reconnecting.redis = false;
+
 //Set up an empty log and completion tags
 let actionsLog = [];
 let actionsCompleted = {};
@@ -49,40 +70,78 @@ try {
     process.exit();
 }
 
-//Initialize Raven database
-let raven = require("ravendb");
-let database = "MyDistrubutedDB";
-let store = new raven.DocumentStore("http://137.112.89.84:8080", "MyDistrubutedDB");
-store.initialize();
-let ravenSession = store.openSession(database);
-
-//Initialize Redis database
-let redis_port = 6379
-let redis_server = '137.112.89.84'
-let redis = require("redis");
-let redisClient = redis.createClient({
-    port: redis_port,
-    host: redis_server,
-    // password: 'myFunnyPassword'
-})
-
 //Make sure all databases are up to date on server start
 function checkActions(){
-    if(!(actionsCompleted.raven == actionsLog.length)) updateRaven();
-    if(!(actionsCompleted.neo == actionsLog.length)) updateNeo();
-    if(!(actionsCompleted.redis == actionsLog.length)) updateRedis();
+    if(!(actionsCompleted.raven == actionsLog.length - 1)) updateRaven();
+    if(!(actionsCompleted.neo == actionsLog.length - 1)) updateNeo();
+    if(!(actionsCompleted.redis == actionsLog.length - 1)) updateRedis();
+}
+
+//Sleep function
+function sleep(ms){
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    })
+}
+
+//If a database refuses connection, ping and then catch it up
+//upon reconnection
+async function reconnectRaven(){
+    if(reconnecting.raven) return;
+    reconnecting.raven = true;
+    while(true){
+        try{
+            console.log("Attempting raven load");
+            await ravenSession.load("game")
+            console.log("Raven responded");
+            reconnecting.raven = false;
+            updateRaven();
+            return
+        }catch(error){
+            //Do nothing and try again
+            console.log("Failed reconnection, waiting to try again.");
+            await sleep(5000)
+        }
+    }
+}
+
+async function reconnectNeo(){
+    
+}
+
+async function reconnectRedis(){
+    
 }
 
 //Check all log entries since last update and apply actions
-function updateRaven(){
+async function updateRaven(){
+    console.log("Catching up ravendb");
+    for(let i = actionsCompleted.raven + 1; i < actionsLog.length; i++){
+        let entry = actionsLog[i];
+        console.log("Updating entry " + i + " of " + (actionsLog.length - 1));
+        if(entry.action = Actions.create){
+            try{
+                console.log("Attempting to add game to raven");
+                await ravenSession.store(entry.data);
+                await ravenSession.saveChanges();
+                console.log("Successfully added game to raven");
+                actionsCompleted.raven = i;
+                await fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+            }catch(error){
+                console.log("Raven unresponsive, attempting reconnection.");
+                reconnectRaven();
+                return;
+            }
+        }
+    }
+    console.log("Raven is now up to date");
+}
+
+async function updateNeo(){
 
 }
 
-function updateNeo(){
-
-}
-
-function updateRedis(){
+async function updateRedis(){
 
 }
 
@@ -124,7 +183,6 @@ app.post('/addGame', async function(req, res){
     newGameId = uuidv4();
     var newGame = req.body;
     newGame.id = newGameId;
-    console.log("New game is: \n" + newGame);
 
     //Update the logs
     let gameJSON = {
@@ -134,34 +192,45 @@ app.post('/addGame', async function(req, res){
     actionsLog.push(gameJSON);
     fs.appendFile(actionsLogFile, "," + JSON.stringify(gameJSON), () => {});
 
-    //Add game to raven
-    await ravenSession.store(newGame);
-
     //Don't think we need these
     //redisClient.lpush(newGameId, newGame.title, redis.print)
     //redisClient.lpush('games', newGameId)
     
     //add games to stores
-    if(newGame.stores.itch.listed){
-        redisClient.lpush('itch', newGameId)
-    }
-    if(newGame.stores.nintendo.listed){
-        redisClient.lpush('nintendo', newGameId)
-    }
-    if(newGame.stores.playstation.listed){
-        redisClient.lpush('playstation', newGameId)
-    }
-    if(newGame.stores.steam.listed){
-        redisClient.lpush('steam', newGameId)
-    }
-    if(newGame.stores.xbox.listed){
-        redisClient.lpush('xbox', newGameId)
-    }
-    actionsCompleted.redis = actionsLog.length;
-    console.log("In redis")
+    /* try{
+        if(newGame.stores.itch.listed){
+            redisClient.lpush('itch', newGameId)
+        }
+        if(newGame.stores.nintendo.listed){
+            redisClient.lpush('nintendo', newGameId)
+        }
+        if(newGame.stores.playstation.listed){
+            redisClient.lpush('playstation', newGameId)
+        }
+        if(newGame.stores.steam.listed){
+            redisClient.lpush('steam', newGameId)
+        }
+        if(newGame.stores.xbox.listed){
+            redisClient.lpush('xbox', newGameId)
+        }
+        actionsCompleted.redis = actionsLog.length - 1;
+        console.log("In redis")
+    }catch(error){
+        console.log("Redis unresponsive, attempting reconnection.");
+        reconnectRedis();
+    } */
 
-    await ravenSession.saveChanges();
-    actionsCompleted.raven = actionsLog.length;
+    //Try to save changes to Raven
+    try{
+        console.log("Attempting to add game to raven");
+        await ravenSession.store(newGame);
+        await ravenSession.saveChanges();
+        actionsCompleted.raven = actionsLog.length - 1;
+        console.log("Successfully added game to raven");
+    }catch(error){
+        console.log("Raven unresponsive, attempting reconnection.");
+        reconnectRaven();
+    }
 
     fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
     
