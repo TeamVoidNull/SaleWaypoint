@@ -67,6 +67,12 @@ let redisClient = redis.createClient({
     // password: 'myFunnyPassword'
 })
 
+//Initialize Neo4j database
+const neo4j = require('neo4j-driver')
+let uri = 'bolt://137.112.89.83:7687'
+const neoDriver = neo4j.driver(uri, neo4j.auth.basic("neo4j", "zee2Coo9"))
+
+
 //Make sure all databases are up to date on server start
 function checkActions(){
     if(!(actionsCompleted.raven == actionsLog.length)) updateRaven();
@@ -162,6 +168,16 @@ app.post('/addGame', async function(req, res){
     actionsCompleted.redis = actionsLog.length;
     console.log("In redis")
 
+    //add game to neo
+    const session = neoDriver.session()
+    const query = `CREATE (a:Game {gameId: "${newGame.id}", title: "${newGame.title}"}) RETURN a`
+    try{
+        await session.run(query)
+    }finally{
+        await session.close()
+    }
+
+
     await ravenSession.saveChanges();
     actionsCompleted.raven = actionsLog.length;
 
@@ -178,6 +194,7 @@ app.post('/register', async function(req, res){
     console.log(req.body)
     const passHash = await encryptPassword(req.body.password)
 
+    //Add to raven
     var newUser = {
         username: req.body.username,
         password: passHash,
@@ -185,13 +202,18 @@ app.post('/register', async function(req, res){
         last_name: req.body.last_name,
         "@metadata": {"@collection": "Users"}
     }
-
-    console.log('pog')
-
     await ravenSession.store(newUser)
-    console.log('pogger')
     await ravenSession.saveChanges();
-    console.log('poggerino')
+
+    //Add to neo
+    const session = neoDriver.session()
+    const query = `CREATE (a:User {username: "${req.body.username}"}) RETURN a`
+    try{
+        await session.run(query)
+    }finally{
+        await session.close()
+    }
+
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
