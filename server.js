@@ -160,7 +160,7 @@ app.use(cookie_parser('myFunnyCookie'))
 
 app.get('/getGamesList', async function(req, res){
     console.log("Recieved game list request")
-    let results = await ravenSession.query({collection: "Games"}).all()
+    let results = await ravenSession.query({collection: "Games"}).orderBy("title").all()
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.send(results);
 })
@@ -173,6 +173,7 @@ app.get('/getGamesByStore/:store', async function(req, res){
         console.log(reply)
         ravenSession.query({collection: "Games"})
             .whereIn("id", reply)
+            .orderBy("title")
             .all()
             .then((results) => {
                 console.log(results);
