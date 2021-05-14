@@ -34,6 +34,12 @@ let redisClient = redis.createClient({
 })
 reconnecting.redis = false;
 
+//Initialize Neo4j database
+const neo4j = require('neo4j-driver')
+let uri = 'bolt://137.112.89.83:7687'
+const neoDriver = neo4j.driver(uri, neo4j.auth.basic("neo4j", "zee2Coo9"))
+reconnecting.neo = false;
+
 //Set up an empty log and completion tags
 let actionsLog = [];
 let actionsCompleted = {};
@@ -70,11 +76,6 @@ try {
     console.error("Error with fs in log file: " + err);
     process.exit();
 }
-
-//Initialize Neo4j database
-const neo4j = require('neo4j-driver')
-let uri = 'bolt://137.112.89.83:7687'
-const neoDriver = neo4j.driver(uri, neo4j.auth.basic("neo4j", "zee2Coo9"))
 
 //Make sure all databases are up to date on server start
 function checkActions(){
@@ -203,7 +204,7 @@ app.post('/addGame', async function(req, res){
     //redisClient.lpush(newGameId, newGame.title, redis.print)
     //redisClient.lpush('games', newGameId)
     
-    //add games to stores
+    //add games to redis
      try{
         if(newGame.stores.itch.listed){
             redisClient.lpush('itch', newGameId)
@@ -227,7 +228,7 @@ app.post('/addGame', async function(req, res){
         reconnectRedis();
     } 
 
-    //Try to save changes to Raven
+    //add game to raven
     try{
         console.log("Attempting to add game to raven");
         await ravenSession.store(newGame);
