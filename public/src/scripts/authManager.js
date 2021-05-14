@@ -12,7 +12,7 @@ export default class AuthManager {
 	 */
 	user;
 
-	static test = true;
+	static test = false;
 
     static mainurl = "http://137.112.89.83:3000/"
     static testurl = "http://localhost:3000/";
