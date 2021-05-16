@@ -35,7 +35,11 @@ export default class Conversions {
 			game.stores.set(Store.STEAM, Listing.fromObject(stores.steam));
 			game.stores.set(Store.XBOX, Listing.fromObject(stores.xbox));
 		}
-		game.id = snapshot.id;
+
+		game.onSale = item.onSale
+		game.id = item.id;
+		console.log("Snapshot:")
+		console.log(snapshot.id)
 		return game;
 	}
 

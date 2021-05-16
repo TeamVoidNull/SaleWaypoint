@@ -1,7 +1,7 @@
 export default class Raven{
     static instance;
 
-    static test = false;
+    static test = true;
 
     static mainurl = "http://137.112.89.83:3000/"
     static testurl = "http://localhost:3000/";
@@ -16,8 +16,9 @@ export default class Raven{
 
     async getList(callback){
         console.log("Getting list of games");
+        let user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
         let req = new XMLHttpRequest();
-        req.open("GET", Raven.url + "getGamesList", true);
+        req.open("GET", Raven.url + "getGamesList/" + user, true);
         req.onload = () => {
             if(req.status == 200){
                 console.log("Got games successfully");
@@ -53,7 +54,7 @@ export default class Raven{
         };
         req.send(null)
     }
-
+    
     async addGame(game, callback){
         console.log("Sending game to database");
         delete game.wishlisted;
@@ -78,5 +79,26 @@ export default class Raven{
             console.error(req.statusText)
         };
         req.send(JSON.stringify(game))
+    }
+
+    async wishlistGame(game, callback){
+        console.log("Game: " + game)
+        let user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
+        let req = new XMLHttpRequest();
+        req.open("POST", Raven.url + `wishlist/${game}/${user}`, true);
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Added game to wish");
+                if (callback) callback();
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(null)
+
     }
 }

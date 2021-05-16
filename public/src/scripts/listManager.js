@@ -160,21 +160,9 @@ export default class ListManager {
 	}
 
 	static wishlistGame(gameId, wishlisted)	{
-
-		//TODO: wishlist games
-
-		//javascript code
-		// let game = this.instance.ref.doc(gameId);
-		// console.log(game);
-		// game.get().then(snapshot => {
-		// 	let wishlist = snapshot.get(Constants.fb.field.WISHLIST) || [];
-		// 	if (wishlisted) {
-		// 		wishlist.splice(wishlist.indexOf(AuthManager.uid, 1));
-		// 	} else {
-		// 		wishlist.push(AuthManager.uid);
-		// 	}
-		// 	game.set({wishlist: wishlist}, {merge: true});
-		// });
+			if(!wishlisted){
+				ListManager.instance.ref.wishlistGame(gameId)
+			}
 	}
 
 	/**

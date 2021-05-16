@@ -11,14 +11,7 @@ export default class AuthManager {
 	 * @private
 	 */
 	user;
-
-	static test = false;
-
-    static mainurl = "http://137.112.89.83:3000/"
-    static testurl = "http://localhost:3000/";
-
-    static url = AuthManager.test ? AuthManager.testurl : AuthManager.mainurl;
-
+s
 	static get isSignedIn() {
 		return !!AuthManager.instance.user;
 	}
@@ -32,7 +25,6 @@ export default class AuthManager {
 	 */
 	static startListeners(callback) {
 		var biscuit = document.cookie
-		console.log("Authing")
 		console.log(biscuit)
 		AuthManager.instance.user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
 
@@ -40,7 +32,6 @@ export default class AuthManager {
 	}
 
 	static signOut() {
-		console.log("Lonking oue")
 		document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; Path=/;";
 	}
 }

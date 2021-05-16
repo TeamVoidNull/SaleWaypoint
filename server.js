@@ -158,9 +158,13 @@ app.use('/register', bodyParser.urlencoded({extended:false}))
 app.use('/authenticate', bodyParser.urlencoded({extended:false}))
 app.use(cookie_parser('myFunnyCookie'))
 
-app.get('/getGamesList', async function(req, res){
+app.get('/getGamesList/:user', async function(req, res){
     console.log("Recieved game list request")
     let results = await ravenSession.query({collection: "Games"}).orderBy("title").all()
+    results.forEach((result) =>{
+        
+    } )
+
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.send(results);
 })
@@ -183,6 +187,41 @@ app.get('/getGamesByStore/:store', async function(req, res){
         
     }) 
 })
+
+//get list of games on the wishlist
+app.get('getWishlist/:user', async function(req, res){
+    let user = req.params.user;
+    console.log("User", user)
+
+    //Wishlist from neo
+    const session = neoDriver.session()
+    const query = 
+        `MATCH (a:User {username: "${user}"})
+        MATCH (a)-[:wishlists]->(g:Game)
+        RETURN (g)
+        `
+    try{
+        results = await session.run(query)
+    }finally{
+        await session.close()
+        console.log(results)
+        //finish this once I know what the results set looks like in node
+    }
+
+
+})
+
+//get list of games that are on sale
+// app.get('/getGamesOnSale', async function(req, res){
+//     ravenSession.query({collection: "Games"})
+//         .whereEquals("onSale", true)
+//         .all()
+//         .then((results) =>{
+//             console.log(results)
+//             res.setHeader("Access-Control-Allow-Origin", "*")
+//             res.send(results);
+//         })
+// })
 
 //Add a game
 app.post('/addGame', async function(req, res){
@@ -258,6 +297,34 @@ app.post('/addGame', async function(req, res){
     res.send("Got your game");
 })
 
+//Add game to wishlist
+app.post('/wishlist/:gameID/:user', async function(req, res){
+    game = req.params.gameID
+    user = req.params.user
+
+    //add relationship in neo
+    const session = neoDriver.session()
+    const query = 
+        `MATCH (a:User) WHERE a.username = "${user}"
+        MATCH (b:Game) WHERE b.gameId = "${game}"
+        CREATE (a)-[r:wishlists]->(b)
+        RETURN (r)
+    `
+    try{
+        await session.run(query)
+    }finally{
+        await session.close()
+        
+    }
+
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.sendStatus(200)
+
+})
+
+//New user
 app.post('/register', async function(req, res){
     console.log("Recieved register request")
     console.log(req.body)
