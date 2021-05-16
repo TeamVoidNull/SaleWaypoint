@@ -18,6 +18,7 @@ export default class Raven{
         console.log("Getting list of games");
         let user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
         let req = new XMLHttpRequest();
+        console.log(user)
         req.open("GET", Raven.url + "getGamesList/" + user, true);
         req.onload = () => {
             if(req.status == 200){

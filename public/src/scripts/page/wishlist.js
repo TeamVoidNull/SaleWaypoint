@@ -3,7 +3,12 @@ import PageGames from "./games.js";
 
 export default class PageWishlist extends PageGames {
 	filterCollection(ref) {
-		return ref
+		console.log(ref)
+		for(let k of ref.keys()){
+			if(ref.get(k).wishlisted == false){
+				ref.delete(k)
+			}
+		}
 	}
 }
 

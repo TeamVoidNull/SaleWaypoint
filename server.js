@@ -161,9 +161,23 @@ app.use(cookie_parser('myFunnyCookie'))
 app.get('/getGamesList/:user', async function(req, res){
     console.log("Recieved game list request")
     let results = await ravenSession.query({collection: "Games"}).orderBy("title").all()
-    results.forEach((result) =>{
-        
-    } )
+    let query
+    results.forEach(async (result) =>{
+        const session = neoDriver.session()
+        query = `
+        MATCH (g:Game) WHERE g.gameId = "${result.id}"
+        MATCH(u:User) WHERE u.username = "${req.params.user}"
+        MATCH (g)<-[r:wishlists]-(u)
+        RETURN count(r) as isWishlist`
+        const rs = await session.run(query)
+        const wish = rs.records[0].get('isWishlist').low
+        if(wish > 0){
+            result.wishlisted = true
+        }else{
+            result.wishlisted = false
+        }
+        session.close()
+    })
 
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.send(results);
@@ -189,27 +203,27 @@ app.get('/getGamesByStore/:store', async function(req, res){
 })
 
 //get list of games on the wishlist
-app.get('getWishlist/:user', async function(req, res){
-    let user = req.params.user;
-    console.log("User", user)
+// app.get('getWishlist/:user', async function(req, res){
+//     let user = req.params.user;
+//     console.log("User", user)
 
-    //Wishlist from neo
-    const session = neoDriver.session()
-    const query = 
-        `MATCH (a:User {username: "${user}"})
-        MATCH (a)-[:wishlists]->(g:Game)
-        RETURN (g)
-        `
-    try{
-        results = await session.run(query)
-    }finally{
-        await session.close()
-        console.log(results)
-        //finish this once I know what the results set looks like in node
-    }
+//     //Wishlist from neo
+//     const session = neoDriver.session()
+//     const query = 
+//         `MATCH (a:User {username: "${user}"})
+//         MATCH (a)-[:wishlists]->(g:Game)
+//         RETURN (g)
+//         `
+//     try{
+//         results = await session.run(query)
+//     }finally{
+//         await session.close()
+//         console.log(results)
+//         //finish this once I know what the results set looks like in node
+//     }
 
 
-})
+// })
 
 //get list of games that are on sale
 // app.get('/getGamesOnSale', async function(req, res){
