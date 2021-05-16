@@ -43,6 +43,12 @@ export default class ListManager {
 	 * @private
 	 */
 	unsubscribe;
+		/**
+	 * Function that filters data based on the page
+	 * @type CallableFunction
+	 * @private
+	 */
+	filterFunction;
 
 	constructor(page) {
 		if (ListManager.instance) return;
@@ -52,6 +58,7 @@ export default class ListManager {
 		console.log("Set store to: "+ this.store);
 		new Raven();
 		this.ref = Raven.instance;
+		this.filterFunction = page.filterCollection; //page.orderCollection(this.ref)
 		ListManager.instance = this;
 	}
 
@@ -65,6 +72,7 @@ export default class ListManager {
 		console.log(this.store);
 		if(!this.store){
 			this.ref.getList((snapshots) => {
+				let filteredSnapshots = this.filterFunction(snapshots)
 				ListManager.instance.snapshots = snapshots;
 				if(callback) callback();
 			})
