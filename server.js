@@ -303,6 +303,33 @@ app.post('/wishlist/:gameID/:user', async function(req, res){
 
 })
 
+//Remove game from wishlist 
+app.post('/unwishlist/:gameID/:user', async function(req, res){
+    game = req.params.gameID
+    user = req.params.user
+
+    //add relationship in neo
+    const session = neoDriver.session()
+    const query = 
+        `MATCH (a:User) WHERE a.username = "${user}"
+        MATCH (b:Game) WHERE b.gameId = "${game}"
+        MATCH (a)-[r:wishlists]->(b)
+        DELETE (r)
+    `
+    try{
+        await session.run(query)
+    }finally{
+        await session.close()
+        
+    }
+
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.sendStatus(200)
+
+})
+
 //New user
 app.post('/register', async function(req, res){
     console.log("Recieved register request")

@@ -102,4 +102,24 @@ export default class Raven{
         req.send(null)
 
     }
+
+    async unwishlistGame(game, callback){
+        console.log("Game: " + game)
+        let user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
+        let req = new XMLHttpRequest();
+        req.open("POST", Raven.url + `unwishlist/${game}/${user}`, true);
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Added game to wish");
+                if (callback) callback();
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(null)
+    }
 }

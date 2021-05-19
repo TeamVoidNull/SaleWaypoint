@@ -170,6 +170,8 @@ export default class ListManager {
 	static wishlistGame(gameId, wishlisted)	{
 			if(!wishlisted){
 				ListManager.instance.ref.wishlistGame(gameId)
+			}else{
+				ListManager.instance.ref.unwishlistGame(gameId)
 			}
 	}
 
