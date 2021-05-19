@@ -27,6 +27,7 @@ export default class Constants {
 			static DESCRIPTION = "description";
 			static IMAGE = "image";
 			static WISHLIST = "wishlist";
+			static WISHLISTED = 'wishlisted';
 			static ONSALE = "onSale";
 			static STORES = "stores";
 			static stores = class {
