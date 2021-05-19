@@ -40,11 +40,40 @@
 		</div>
 	</nav>
 	<div id="content">
-		<div id="pageWishlist" class="container">
+		<div id="pageReviews" class="container">
 			<div id="games" class="row justify-content-center"></div>
 		</div>
+		<button id="fab" type="button" class="pushable btn bmd-btn-fab" data-toggle="modal" data-target="#dialogReviewAdd">
+			<i class="material-icons">+</i>
+		</button>
 	</div>
 	<section id="modals">
+		<!-- add review dialog -->
+		<div class="modal fade" id="dialogReviewAdd" tabindex="-1" role="dialog" aria-labelledby="Add game dialog" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title">Add a Review</h5>
+				</div>
+				<div class="modal-body">
+					<div class="form-group .bmd-form-group">
+						<label for="inputTitle" class="bmd-label-floating">Game Title</label>
+						<input type="text" class="form-control" id="inputTitle">
+						<span class="bmd-help">The title of the game</span>
+					</div>
+					<div class="form-group bmd-form-group">
+						<label for="inputDev" class="bmd-label-floating">Message</label>
+						<input type="text" class="form-control" id="inputDev">
+						<span class="bmd-help">What do you have to say about this game?</span>
+					</div>
+				</div>
+				<div class="modal-footer">
+				  <button class="btn btn-secondary" type="button" data-dismiss="modal">CANCEL</button>
+				  <button id="submitReviewAdd" class="btn btn-sale" type="button">CREATE</button>
+				</div>
+			  </div>
+			</div>
+		</div>
 		<!-- detail dialog -->
 		<div class="modal fade" id="dialogDetail" tabindex="-1" role="dialog" aria-labelledby="Detail dialog" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered" role="document">
