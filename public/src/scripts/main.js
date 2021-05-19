@@ -10,6 +10,8 @@ import PageLogin from "./page/login.js";
 import PageSales from "./page/sales.js";
 import PageStores from "./page/stores.js";
 import PageWishlist from "./page/wishlist.js";
+import PageRecommendations from "./page/recommendations.js";
+import PageReviews from "./page/reviews.js";
 
 /**
  * Page instance
@@ -31,6 +33,8 @@ function initializePage() {
 	if (document.querySelector("#pageGames")) page = new PageGames();
 	if (document.querySelector("#pageSales")) page = new PageSales();
 	if (document.querySelector("#pageWishlist")) page = new PageWishlist();
+	if (document.querySelector("#pageRecommendations")) page = new PageRecommendations();
+	if (document.querySelector("#pageReviews")) page = new PageReviews();
 	if (document.querySelector("#pageStores")) page = new PageStores();
 
 	if (page) {

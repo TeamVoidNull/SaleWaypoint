@@ -25,6 +25,8 @@ export default class Page {
 		$("#linkGames").on("click", this.redirect.bind(this, "./games.html"));
 		$("#linkSales").on("click", this.redirect.bind(this, "./sales.html"));
 		$("#linkWishlist").on("click", this.redirect.bind(this, "./wishlist.html"));
+		$("#linkRecommendations").on("click", this.redirect.bind(this, "./recommendations.html"));
+		$("#linkReviews").on("click", this.redirect.bind(this, "./reviews.html"));
 		$("#logout").on("click", this.logout.bind());
 		$("#content").animate({opacity: 1}, Page.fade);
 
