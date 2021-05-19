@@ -19,7 +19,6 @@ export default class Conversions {
 			snapshot.get(Constants.fb.field.DEVELOPER),
 			snapshot.get(Constants.fb.field.DESCRIPTION),
 			snapshot.get(Constants.fb.field.IMAGE),
-			wishlisted
 		);
 		const stores = snapshot.get(Constants.fb.field.STORES);
 		if (stores === undefined) {
@@ -38,6 +37,7 @@ export default class Conversions {
 
 		game.onSale = item.onSale
 		game.id = item.id;
+		game.wishlisted = item.wishlisted;
 		console.log("Snapshot:")
 		console.log(snapshot.id)
 		return game;

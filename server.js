@@ -202,41 +202,6 @@ app.get('/getGamesByStore/:store', async function(req, res){
     }) 
 })
 
-//get list of games on the wishlist
-// app.get('getWishlist/:user', async function(req, res){
-//     let user = req.params.user;
-//     console.log("User", user)
-
-//     //Wishlist from neo
-//     const session = neoDriver.session()
-//     const query = 
-//         `MATCH (a:User {username: "${user}"})
-//         MATCH (a)-[:wishlists]->(g:Game)
-//         RETURN (g)
-//         `
-//     try{
-//         results = await session.run(query)
-//     }finally{
-//         await session.close()
-//         console.log(results)
-//         //finish this once I know what the results set looks like in node
-//     }
-
-
-// })
-
-//get list of games that are on sale
-// app.get('/getGamesOnSale', async function(req, res){
-//     ravenSession.query({collection: "Games"})
-//         .whereEquals("onSale", true)
-//         .all()
-//         .then((results) =>{
-//             console.log(results)
-//             res.setHeader("Access-Control-Allow-Origin", "*")
-//             res.send(results);
-//         })
-// })
-
 //Add a game
 app.post('/addGame', async function(req, res){
     console.log("Recieved add game request");
