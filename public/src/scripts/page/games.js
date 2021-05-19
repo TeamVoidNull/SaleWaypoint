@@ -18,10 +18,15 @@ export default class PageGames extends Page {
 	 * @type {boolean}
 	 */
 	detailWishlisted;
+	/**
+	 * @type {string}
+	 */
+	nameSearchTerm;	
 
 	init() {
 		this.views = {
 			games: $("#games"),
+			searchBar: $('#searchBar'),
 			addDialog: {
 				modal: $("#dialogGameAdd"),
 				submit: $("#submitGameAdd"),
@@ -167,6 +172,13 @@ export default class PageGames extends Page {
 		});
 
 		this.views.detailDialog.wishlist.on("click", () => this.wishlistGame());
+		this.views.searchBar.on('keydown', function changeSearchCriteria(event){
+			if(event.keyCode == 13){
+				this.nameSearchTerm = $(this).val()
+				location.reload()
+				console.log(this.nameSearchTerm)
+			}
+		})
 	}
 
 	wishlistGame() {
