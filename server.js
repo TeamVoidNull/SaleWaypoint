@@ -10,7 +10,8 @@ let Actions = {
     create: "CREATE",
     update: "UPDATE",
     wishlist: "WISHLIST",
-    addUser: "USER"
+    addUser: "USER",
+    review: "REVIEW"
 }
 
 let reconnecting = {};
@@ -33,6 +34,18 @@ let redisClient = redis.createClient({
     // password: 'myFunnyPassword'
 })
 reconnecting.redis = false;
+
+redisClient.on("error", function(error){
+    console.log("Encountered error with redis");
+})
+
+redisClient.on("ready", function(error){
+    console.log("Redis connected");
+})
+
+redisClient.on("reconnecting", function(error){
+    console.log("Attempting reconnect to redis");
+})
 
 //Initialize Neo4j database
 const neo4j = require('neo4j-driver')
@@ -106,17 +119,13 @@ async function reconnectRaven(){
             return
         }catch(error){
             //Do nothing and try again
-            console.log("Failed reconnection, waiting to try again.");
+            console.log("Failed raven reconnection, waiting to try again.");
             await sleep(5000)
         }
     }
 }
 
 async function reconnectNeo(){
-    
-}
-
-async function reconnectRedis(){
     
 }
 
@@ -145,10 +154,6 @@ async function updateRaven(){
 }
 
 async function updateNeo(){
-
-}
-
-async function updateRedis(){
 
 }
 
@@ -224,28 +229,24 @@ app.post('/addGame', async function(req, res){
     //redisClient.lpush('games', newGameId)
     
     //add games to redis
-     try{
-        if(newGame.stores.itch.listed){
-            redisClient.lpush('itch', newGameId)
-        }
-        if(newGame.stores.nintendo.listed){
-            redisClient.lpush('nintendo', newGameId)
-        }
-        if(newGame.stores.playstation.listed){
-            redisClient.lpush('playstation', newGameId)
-        }
-        if(newGame.stores.steam.listed){
-            redisClient.lpush('steam', newGameId)
-        }
-        if(newGame.stores.xbox.listed){
-            redisClient.lpush('xbox', newGameId)
-        }
-        actionsCompleted.redis = actionsLog.length - 1;
-        console.log("In redis")
-    }catch(error){
-        console.log("Redis unresponsive, attempting reconnection.");
-        reconnectRedis();
-    } 
+    if(newGame.stores.itch.listed){
+        redisClient.lpush('itch', newGameId)
+    }
+    if(newGame.stores.nintendo.listed){
+        redisClient.lpush('nintendo', newGameId)
+    }
+    if(newGame.stores.playstation.listed){
+        redisClient.lpush('playstation', newGameId)
+    }
+    if(newGame.stores.steam.listed){
+        redisClient.lpush('steam', newGameId)
+    }
+    if(newGame.stores.xbox.listed){
+        redisClient.lpush('xbox', newGameId)
+    }
+    actionsCompleted.redis = actionsLog.length - 1;
+    console.log("In redis")
+    
 
     //add game to raven
     try{
