@@ -93,6 +93,10 @@ export default class ListManager {
 		})
 	}
 
+	getReviews(callback){
+
+	}
+
 	/**
 	 * Initialize the snapshot listeners
 	 * @param {CallableFunction} callback
@@ -180,6 +184,12 @@ export default class ListManager {
 				ListManager.instance.ref.unwishlistGame(gameId)
 			}
 	}
+
+	static addReview(title, message){
+		console.log("List manager got " + title + " " + message);
+		ListManager.instance.ref.addReview(title, message);
+	}
+
 
 	/**
 	 * Get a reference to the Game at a specific index

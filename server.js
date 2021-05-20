@@ -277,6 +277,7 @@ async function updateNeo(){
 app.use('/', express.static("./public") );
 app.use('/addGame', bodyParser.json())
 app.use('/updateGame', bodyParser.json())
+app.use('/addReview', bodyParser.json())
 app.use('/register', bodyParser.urlencoded({extended:false}))
 app.use('/authenticate', bodyParser.urlencoded({extended:false}))
 app.use(cookie_parser('myFunnyCookie'))
@@ -523,6 +524,23 @@ app.post('/updateGame', async function(req, res){
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
     res.send("Got your update");
+})
+
+app.post('/addReview', async function(req, res) {
+    let review = req.body;
+    console.log(review);
+    try{
+        console.log("Attempting to add review to raven");
+        await ravenSession.store(review);
+        await ravenSession.saveChanges();
+        console.log("Successfully added review to raven");
+    }catch(error){
+        console.log("Raven unresponsive, ignoring review.");
+    }
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.send("Got your review");
 })
 
 //Add game to wishlist
