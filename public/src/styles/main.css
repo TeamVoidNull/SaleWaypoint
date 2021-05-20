@@ -57,6 +57,10 @@
 	font-size: 1.2em;
 }
 
+.bmd-form-group{
+	padding: .3rem 0px .3rem 20px;
+}
+
 .collapse-group {
 	display: flex;
 }
