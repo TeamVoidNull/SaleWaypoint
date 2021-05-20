@@ -21,15 +21,16 @@ export default class PageReviews extends Page {
 		let lm = new ListManager(this);
 		let fadedIn = false;
 		lm.getReviews(() => {
-			this.views.games.empty();
+			this.views.reviews.empty();
 			console.log(ListManager.instance.snapshots);
 			ListManager.instance.snapshots.forEach(item => {
 				for (let i = 0; i < 1; i++) {
-					this.views.games.append(this.createReviewView(item));
+					console.log(item);
+					this.views.reviews.append(this.createReviewView(item));
 				}
 			});
 			if (!fadedIn) {
-				this.views.games.animate({opacity: 1}, Page.fade);
+				this.views.reviews.animate({opacity: 1}, Page.fade);
 				fadedIn = true;
 			} 
 		});
@@ -47,5 +48,14 @@ export default class PageReviews extends Page {
 				this.views.addDialog.message.val()
 			);
 		})
+	}
+
+	createReviewView(item){
+		let template = $("#templateReview").contents();
+		let clone = template.clone(true, true);
+		clone.find(".game-title").html(item.title);
+		clone.find(".username").html("User: " + item.user);
+		clone.find(".message").html("Review: \n" + item.message);
+		return clone;
 	}
 }

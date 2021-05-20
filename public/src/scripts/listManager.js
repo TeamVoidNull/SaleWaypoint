@@ -94,7 +94,10 @@ export default class ListManager {
 	}
 
 	getReviews(callback){
-
+		this.ref.getReviews((snapshots) => {
+			ListManager.instance.snapshots = snapshots;
+			if(callback) callback();
+		})
 	}
 
 	/**
@@ -186,7 +189,6 @@ export default class ListManager {
 	}
 
 	static addReview(title, message){
-		console.log("List manager got " + title + " " + message);
 		ListManager.instance.ref.addReview(title, message);
 	}
 

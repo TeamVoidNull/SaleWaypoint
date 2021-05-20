@@ -312,6 +312,12 @@ app.get('/getGamesList/:user', async function(req, res){
     res.send(results);
 })
 
+app.get('/getReviews', async function(req, res){
+    let results = await ravenSession.query({collection: "reviews"}).all()
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.send(results);
+})
+
 //get full list of games for a specific store
 app.get('/getGamesByStore/:store', async function(req, res){
     let store = req.params.store;
