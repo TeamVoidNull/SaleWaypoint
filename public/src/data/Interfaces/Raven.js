@@ -1,7 +1,7 @@
 export default class Raven{
     static instance;
 
-    static test = false;
+    static test = true;
 
     static mainurl = "http://137.112.89.83:3000/"
     static testurl = "http://localhost:3000/";
@@ -44,6 +44,27 @@ export default class Raven{
             if(req.status == 200){
                 console.log("Got games successfully");
                 console.log(JSON.parse(req.responseText));
+                if (callback) callback(new Map(Object.entries(JSON.parse(req.responseText))));
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(null)
+    }
+
+    async getRecommendations(callback){
+        console.log("Getting recommendations");
+        let user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
+        let req = new XMLHttpRequest();
+        console.log(user)
+        req.open("GET", Raven.url + "getRecommendations/" + user, true);
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Got games successfully");
                 if (callback) callback(new Map(Object.entries(JSON.parse(req.responseText))));
             }
             else{

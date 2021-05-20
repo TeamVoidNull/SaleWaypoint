@@ -86,6 +86,13 @@ export default class ListManager {
 		}
 	}
 
+	getRecommendations(callback){
+		this.ref.getRecommendations((snapshots) => {
+			ListManager.instance.snapshots = snapshots;
+			if(callback) callback();
+		})
+	}
+
 	/**
 	 * Initialize the snapshot listeners
 	 * @param {CallableFunction} callback

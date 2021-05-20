@@ -48,7 +48,8 @@ redisClient.on("reconnecting", function(error){
 })
 
 //Initialize Neo4j database
-const neo4j = require('neo4j-driver')
+const neo4j = require('neo4j-driver');
+const { ClusterTopology } = require('ravendb');
 let uri = 'bolt://137.112.89.83:7687'
 const neoDriver = neo4j.driver(uri, neo4j.auth.basic("neo4j", "zee2Coo9"))
 reconnecting.neo = false;
@@ -305,23 +306,6 @@ app.get('/getGamesList/:user', async function(req, res){
     }finally{
         session.close()
     }
-    // ------Old wishlist code
-    // results.forEach(async (result) =>{
-    //     const session = neoDriver.session()
-    //     query = `
-    //     MATCH (g:Game) WHERE g.gameId = "${result.id}"
-    //     MATCH(u:User) WHERE u.username = "${req.params.user}"
-    //     MATCH (g)<-[r:wishlists]-(u)
-    //     RETURN count(r) as isWishlist`
-    //     const rs = await session.run(query)
-    //     const wish = rs.records[0].get('isWishlist').low
-    //     if(wish > 0){
-    //         result.wishlisted = true
-    //     }else{
-    //         result.wishlisted = false
-    //     }
-    //     session.close()
-    // })
 
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.send(results);
@@ -343,6 +327,57 @@ app.get('/getGamesByStore/:store', async function(req, res){
         })
         
     }) 
+})
+
+// Get list of recommendations for user
+app.get('/getRecommendations/:user', async function(req, res){
+    console.log("Recieved recommendation request")
+    let session = neoDriver.session();
+    let finished = false;
+    let recommendations
+    try{
+        let q1 = `MATCH (me:User { username:"${req.params.user}" })-[:wishlists]->(same:Game)<-[:wishlists]-(them:User) 
+        With them,same 
+        Match (them:User) -[newwish:wishlists]->(x:Game) 
+        Where x.gameId <> same.gameId
+        Return Distinct x.gameId as id`;
+        let q2 = `MATCH (me:User { username:"petersjl" })-[:wishlists]->(g:Game)
+        RETURN g.gameId as id`
+        let recommendationsRecords = await (await session.run(q1)).records;
+        let mygamesRecords = await (await session.run(q2)).records;
+        let recommendations = [];
+        let mygames = [];
+        recommendationsRecords.forEach((record) => {
+            let id = record.get("id")
+            recommendations.push(id);
+        })
+        mygamesRecords.forEach((record) => {
+            let id = record.get("id")
+            mygames.push(id);
+        })
+        for(game of mygames){
+            for(let i = 0; i < recommendations.length; i++){
+                if(game == recommendations[i]){
+                    recommendations.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        ravenSession.query({collection: "Games"})
+            .whereIn("id", recommendations)
+            .orderBy("title")
+            .all()
+            .then((results) => {
+                res.setHeader("Access-Control-Allow-Origin", "*")
+                res.send(results);
+        })
+    }catch(error){
+        console.log("Error getting recommendations");
+        console.log(error);
+    }finally{
+        session.close();
+    }
+
 })
 
 //Add a game
