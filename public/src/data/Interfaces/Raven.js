@@ -76,6 +76,24 @@ export default class Raven{
         };
         req.send(null)
     }
+
+    async getReviews(callback){
+        let req = new XMLHttpRequest();
+        req.open("GET", Raven.url + "getReviews" , true);
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Got reviews successfully");
+                if (callback) callback(new Map(Object.entries(JSON.parse(req.responseText))));
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(null)
+    }
     
     async addGame(game, callback){
         console.log("Sending game to database");
@@ -183,5 +201,33 @@ export default class Raven{
             console.error(req.statusText)
         };
         req.send(null)
+    }
+
+    async addReview(title, message, callback){
+        let user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
+        let req = new XMLHttpRequest();
+        let review = {
+            user: user,
+            title: title,
+            message: message
+        }
+        review["@metadata"] = {}
+        review["@metadata"]["@collection"] = "reviews"
+        console.log(review);
+        req.open("POST", Raven.url + `addReview`, true);
+        req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Added review to database");
+                if (callback) callback();
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(JSON.stringify(review))
     }
 }
