@@ -366,6 +366,8 @@ app.post('/addGame', async function(req, res){
     if(newGame.stores.xbox.listed){
         redisClient.sadd('xbox', newGameId)
     }
+    redisClient.sadd(newGame.title, newGame.id);
+    redisClient.sadd(newGame.developer, newGame.id);
     actionsCompleted.redis = actionsLog.length - 1;
     console.log("In redis")
     
