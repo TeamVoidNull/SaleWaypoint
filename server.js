@@ -267,23 +267,45 @@ app.use(cookie_parser('myFunnyCookie'))
 app.get('/getGamesList/:user', async function(req, res){
     console.log("Recieved game list request")
     let results = await ravenSession.query({collection: "Games"}).orderBy("title").all()
-    let query
-    results.forEach(async (result) =>{
-        const session = neoDriver.session()
-        query = `
-        MATCH (g:Game) WHERE g.gameId = "${result.id}"
-        MATCH(u:User) WHERE u.username = "${req.params.user}"
-        MATCH (g)<-[r:wishlists]-(u)
-        RETURN count(r) as isWishlist`
-        const rs = await session.run(query)
-        const wish = rs.records[0].get('isWishlist').low
-        if(wish > 0){
-            result.wishlisted = true
-        }else{
-            result.wishlisted = false
-        }
+    results.forEach((result) => {result.wishlisted = false})
+    let query = `MATCH (g:Game) - [:wishlists] - (u:User)
+                WHERE u.username = "${req.params.user}"
+                RETURN g.gameId AS id`;
+    let session = neoDriver.session();
+    try{
+        let response = await session.run(query);
+        let wishlist = response.records;
+        wishlist.forEach((wish) => {
+            let id = wish.get("id");
+            for(let result of results){
+                if(result.id == id) {
+                    result.wishlisted = true;
+                    break;
+                }
+            }
+        })
+    }catch(error){
+        console.log("Error getting wishlist. Returning game list without wishlist data");
+    }finally{
         session.close()
-    })
+    }
+    // ------Old wishlist code
+    // results.forEach(async (result) =>{
+    //     const session = neoDriver.session()
+    //     query = `
+    //     MATCH (g:Game) WHERE g.gameId = "${result.id}"
+    //     MATCH(u:User) WHERE u.username = "${req.params.user}"
+    //     MATCH (g)<-[r:wishlists]-(u)
+    //     RETURN count(r) as isWishlist`
+    //     const rs = await session.run(query)
+    //     const wish = rs.records[0].get('isWishlist').low
+    //     if(wish > 0){
+    //         result.wishlisted = true
+    //     }else{
+    //         result.wishlisted = false
+    //     }
+    //     session.close()
+    // })
 
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.send(results);
