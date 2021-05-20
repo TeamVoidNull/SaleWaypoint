@@ -86,4 +86,8 @@ export default class Page {
 	getStore() {
 		return null;
 	}
+
+	getNameSearchTerm(){
+		return null
+	}
 }
