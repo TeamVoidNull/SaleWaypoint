@@ -152,19 +152,18 @@ export default class ListManager {
 	 * @param {string} image
 	 * @param {Map<StoreType, Listing>} stores
 	 */
-	static update(id, description, image, stores) {
+	static update(id, title, developer, description, image, stores) {
+		console.log("ListManager got update");
 		let onSale = stores.steam.onSale
 			|| stores.xbox.onSale || stores.playstation.onSale
 			|| stores.nintendo.onSale || stores.itch.onSale;
 
-			//TODO: update games
-			//javascript code
-		// ListManager.instance.ref.doc(id).set({
-		// 	[Constants.fb.field.DESCRIPTION]: description,
-		// 	[Constants.fb.field.IMAGE]: image,
-		// 	[Constants.fb.field.STORES]: stores,
-		// 	[Constants.fb.field.ONSALE]: onSale
-		// }, {merge: true});
+		let game = new Game(title, developer, description, image, false);
+		game.stores = stores;
+		game.onSale = onSale;
+		game.id = id;
+
+		ListManager.instance.ref.updateGame(game);
 	}
 
 	static wishlistGame(gameId, wishlisted)	{

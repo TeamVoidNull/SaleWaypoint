@@ -65,8 +65,6 @@ export default class PageGames extends Page {
 			console.log(ListManager.instance.snapshots);
 			ListManager.instance.snapshots.forEach(item => {
 				const game = Conversions.gameFromSnapshot(item);
-				console.log(item.id)
-				console.log(game);
 				for (let i = 0; i < 1; i++) {
 					this.views.games.append(this.createGameView(game));
 				}
@@ -165,6 +163,8 @@ export default class PageGames extends Page {
 
 			ListManager.update(
 				this.gameID,
+				this.views.detailDialog.title.val(),
+				this.views.detailDialog.developer.val(),
 				this.views.detailDialog.description.val(),
 				this.views.detailDialog.image.val(),
 				stores

@@ -167,7 +167,22 @@ async function updateRaven(){
                 return;
             }
         }else if(entry.action == Actions.update){
-            console.log("TODO: Update");
+            try{
+                let game = entry.data;
+                console.log("Attempting to update game in raven");
+                let oldGame = await ravenSession.load(game.id);
+                oldGame.description = game.description;
+                oldGame.image = game.image;
+                oldGame.stores = game.stores;
+                oldGame.onSale = game.onSale;
+                await ravenSession.saveChanges();
+                actionsCompleted.raven = actionsLog.length - 1;
+                console.log("Successfully updated game in raven");
+            }catch(error){
+                console.log("Raven unresponsive, attempting reconnection.");
+                console.log(error);
+                reconnectRaven();
+            }
         }else if(entry.action == Actions.addUser){
             try{
                 await ravenSession.store(entry.data)
@@ -260,6 +275,7 @@ async function updateNeo(){
 
 app.use('/', express.static("./public") );
 app.use('/addGame', bodyParser.json())
+app.use('/updateGame', bodyParser.json())
 app.use('/register', bodyParser.urlencoded({extended:false}))
 app.use('/authenticate', bodyParser.urlencoded({extended:false}))
 app.use(cookie_parser('myFunnyCookie'))
@@ -369,7 +385,6 @@ app.post('/addGame', async function(req, res){
     redisClient.sadd(newGame.title, newGame.id);
     redisClient.sadd(newGame.developer, newGame.id);
     actionsCompleted.redis = actionsLog.length - 1;
-    console.log("In redis")
     
 
     //add game to raven
@@ -404,6 +419,75 @@ app.post('/addGame', async function(req, res){
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
     res.send("Got your game");
+})
+
+//Update a game
+app.post('/updateGame', async function(req, res){
+    console.log("Recieved update game request");
+
+    //Get game from request
+    var game = req.body;
+
+    //Update the logs
+    let gameJSON = {
+        action: Actions.update,
+        data: game
+    };
+    actionsLog.push(gameJSON);
+    fs.appendFile(actionsLogFile, "," + JSON.stringify(gameJSON), () => {});
+    
+    //add games to redis
+    if(game.stores.itch.listed){
+        redisClient.sadd('itch', game.id)
+    }else{
+        redisClient.srem('itch', game.id)
+    }
+    if(game.stores.nintendo.listed){
+        redisClient.sadd('nintendo', game.id)
+    }else{
+        redisClient.srem('nintendo', game.id)
+    }
+    if(game.stores.playstation.listed){
+        redisClient.sadd('playstation', game.id)
+    }else{
+        redisClient.srem('playstation', game.id)
+    }
+    if(game.stores.steam.listed){
+        redisClient.sadd('steam', game.id)
+    }else{
+        redisClient.srem('steam', game.id)
+    }
+    if(game.stores.xbox.listed){
+        redisClient.sadd('xbox', game.id)
+    }else{
+        redisClient.srem('xbox', game.id)
+    }
+    actionsCompleted.redis = actionsLog.length - 1;
+    
+
+    //add game to raven
+    try{
+        console.log("Attempting to update game in raven");
+        let oldGame = await ravenSession.load(game.id);
+        oldGame.description = game.description;
+        oldGame.image = game.image;
+        oldGame.stores = game.stores;
+        oldGame.onSale = game.onSale;
+        await ravenSession.saveChanges();
+        actionsCompleted.raven = actionsLog.length - 1;
+        console.log("Successfully updated game in raven");
+    }catch(error){
+        console.log("Raven unresponsive, attempting reconnection.");
+        console.log(error);
+        reconnectRaven();
+    }
+
+    fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+    
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.send("Got your update");
 })
 
 //Add game to wishlist
@@ -570,6 +654,13 @@ app.post('/authenticate', async function(req, res){
 })
 
 app.options('/addGame', async function(req, res){
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.send();
+})
+
+app.options('/updateGame', async function(req, res){
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")

@@ -60,7 +60,6 @@ export default class Raven{
         console.log("Sending game to database");
         delete game.wishlisted;
         delete game.id;
-        //game.@metadata.@collection = "games";
         game["@metadata"] = {}
         game["@metadata"]["@collection"] = "games"
         console.log(game);
@@ -69,7 +68,29 @@ export default class Raven{
         req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         req.onload = () => {
             if(req.status == 200){
-                console.log("Got games successfully");
+                console.log("Got game successfully");
+                if (callback) callback();
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(JSON.stringify(game))
+    }
+
+    async updateGame(game, callback){
+        console.log("Sending game update to database");
+        delete game.wishlisted;
+        console.log(game);
+        let req = new XMLHttpRequest();
+        req.open("POST", Raven.url + "updateGame", true);
+        req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Updated game successfully");
                 if (callback) callback();
             }
             else{
