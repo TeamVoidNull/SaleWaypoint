@@ -315,7 +315,7 @@ app.get('/getGamesList/:user', async function(req, res){
 app.get('/getGamesByStore/:store', async function(req, res){
     let store = req.params.store;
     console.log("Store ", store)
-    redisClient.lrange(store, 0, -1, function(err, reply){
+    redisClient.smembers(store, function(err, reply){
         ravenSession.query({collection: "Games"})
             .whereIn("id", reply)
             .orderBy("title")
@@ -352,19 +352,19 @@ app.post('/addGame', async function(req, res){
     
     //add games to redis
     if(newGame.stores.itch.listed){
-        redisClient.lpush('itch', newGameId)
+        redisClient.sadd('itch', newGameId)
     }
     if(newGame.stores.nintendo.listed){
-        redisClient.lpush('nintendo', newGameId)
+        redisClient.sadd('nintendo', newGameId)
     }
     if(newGame.stores.playstation.listed){
-        redisClient.lpush('playstation', newGameId)
+        redisClient.sadd('playstation', newGameId)
     }
     if(newGame.stores.steam.listed){
-        redisClient.lpush('steam', newGameId)
+        redisClient.sadd('steam', newGameId)
     }
     if(newGame.stores.xbox.listed){
-        redisClient.lpush('xbox', newGameId)
+        redisClient.sadd('xbox', newGameId)
     }
     actionsCompleted.redis = actionsLog.length - 1;
     console.log("In redis")
