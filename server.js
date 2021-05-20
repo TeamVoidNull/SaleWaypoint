@@ -655,11 +655,12 @@ app.post('/searchByName/:name', async function(req, res){
             .all()
 
     console.log(results)
-    res.send(results)
-
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    res.send(results)
+
+    
     // res.sendStatus(200)
 
 })
