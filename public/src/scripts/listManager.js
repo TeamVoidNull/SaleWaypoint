@@ -49,12 +49,20 @@ export default class ListManager {
 	 * @private
 	 */
 	filterFunction;
+	/**
+	 * Function that filters data based on the page
+	 * @type string
+	 * @private
+	 */
+	nameSearchTerm;
+
 
 	constructor(page) {
 		if (ListManager.instance) return;
 		//this.ref = firebase.firestore().collection(Constants.fb.collection.GAMES);
 		// this.queriedRef = page.filterCollection(page.orderCollection(this.ref));
 		this.store = page.getStore();
+		this.nameSearchTerm = page.getNameSearchTerm();
 		console.log("Set store to: "+ this.store);
 		new Raven();
 		this.ref = Raven.instance;
@@ -70,20 +78,36 @@ export default class ListManager {
 		//TODO: get a list of games
 		console.log("Get list called");
 		console.log(this.store);
-		if(!this.store){
+		// if(!this.store){
+		// 	this.ref.getList((snapshots) => {
+		// 		let filteredSnapshots = this.filterFunction(snapshots)
+		// 		ListManager.instance.snapshots = snapshots;
+		// 		if(callback) callback();
+		// 	})
+		// }
+		// else {
+		// 	console.log("Store is: " + this.store);
+		// 	this.ref.getStoreList(this.store, (snapshots) => {
+		// 		ListManager.instance.snapshots = snapshots;
+		// 		if(callback) callback();
+		// 	})
+		// }
+		if(this.store){
+			console.log("Store is: " + this.store);
+			this.ref.getStoreList(this.store, (snapshots) => {
+				ListManager.instance.snapshots = snapshots;
+				if(callback) callback();
+			})
+		}else if(this.nameSearchTerm){
+			this.ref.searchByName(this.nameSearchTerm) 
+		}else{
 			this.ref.getList((snapshots) => {
 				let filteredSnapshots = this.filterFunction(snapshots)
 				ListManager.instance.snapshots = snapshots;
 				if(callback) callback();
 			})
 		}
-		else {
-			console.log("Store is: " + this.store);
-			this.ref.getStoreList(this.store, (snapshots) => {
-				ListManager.instance.snapshots = snapshots;
-				if(callback) callback();
-			})
-		}
+
 	}
 
 	getRecommendations(callback){

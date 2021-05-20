@@ -274,6 +274,10 @@ async function updateNeo(){
     console.log("Neo4J is now up to date");
 }
 
+async function updateRedis(){
+
+}
+
 app.use('/', express.static("./public") );
 app.use('/addGame', bodyParser.json())
 app.use('/updateGame', bodyParser.json())
@@ -397,11 +401,16 @@ app.post('/addGame', async function(req, res){
     actionsLog.push(gameJSON);
     fs.appendFile(actionsLogFile, "," + JSON.stringify(gameJSON), () => {});
 
-    //Don't think we need these
-    //redisClient.lpush(newGameId, newGame.title, redis.print)
-    //redisClient.lpush('games', newGameId)
+    //We !
+    // redisClient.lpush(newGameId, newGame.title, redis.print)
+    // redisClient.lpush(newGameId, newGame.developer, redis.print)
+    // redisClient.lpush('games', newGameId)
+
+
     
     //add games to redis
+    redisClient.set('game:' + newGame.title, newGameId)
+
     if(newGame.stores.itch.listed){
         redisClient.sadd('itch', newGameId)
     }
@@ -571,8 +580,8 @@ app.post('/wishlist/:gameID/:user', async function(req, res){
 
 //Remove game from wishlist 
 app.post('/unwishlist/:gameID/:user', async function(req, res){
-    game = req.params.gameID
-    user = req.params.user
+    const game = req.params.gameID
+    const user = req.params.user
 
     let action = {
             action: Actions.wishlist,
@@ -609,6 +618,17 @@ app.post('/unwishlist/:gameID/:user', async function(req, res){
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
     res.sendStatus(200)
+
+})
+
+//Search games by name
+app.post('searchnames/:name/:user', async function(req, res){
+    const name = req.params.name
+    const user = req.params.user
+    redisClient.keys('game:*' + name + '*', function(err, reply){
+        console.log(reply)
+        //do some things here!!!!!!
+    })
 
 })
 
@@ -662,6 +682,8 @@ app.post('/register', async function(req, res){
     res.cookie('user', req.body.username, {signed: true})
     res.redirect("/games.html");
 })
+
+
 
 app.post('/authenticate', async function(req, res){
     res.setHeader("Access-Control-Allow-Origin", "*")

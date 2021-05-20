@@ -164,4 +164,26 @@ export default class Raven{
         };
         req.send(null)
     }
+
+    async searchByName(name, callback){
+        console.log("Getting list of games");
+        let user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
+        let req = new XMLHttpRequest();
+        console.log(user)
+        req.open("GET", Raven.url + "searchByName/" + name + '/' + user, true);
+        req.onload = () => {
+            if(req.status == 200){
+                console.log("Searched games successfully");
+                console.log(JSON.parse(req.responseText));
+                if (callback) callback(new Map(Object.entries(JSON.parse(req.responseText))));
+            }
+            else{
+                console.error(req.statusText)
+            }
+        };
+        req.onerror = () => {
+            console.error(req.statusText)
+        };
+        req.send(null)
+    }
 }

@@ -86,4 +86,11 @@ export default class Page {
 	getStore() {
 		return null;
 	}
+
+		// /**
+	//  * Override to implement searching by name
+	//  */
+	getNameSearchTerm() {
+		return null;
+	}
 }
