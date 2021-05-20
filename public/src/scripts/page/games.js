@@ -24,6 +24,7 @@ export default class PageGames extends Page {
 	nameSearchTerm;	
 
 	init() {
+		
 		this.views = {
 			games: $("#games"),
 			searchBar: $('#searchBar'),
@@ -58,6 +59,7 @@ export default class PageGames extends Page {
 	}
 
 	main() {
+		this.nameSearchTerm = this.getNameSearchTerm()
 		let lm = new ListManager(this);
 		let fadedIn = false;
 		lm.getList(() => {
@@ -175,8 +177,12 @@ export default class PageGames extends Page {
 		this.views.searchBar.on('keydown', function changeSearchCriteria(event){
 			if(event.keyCode == 13){
 				this.nameSearchTerm = $(this).val()
-				location.reload()
 				console.log(this.nameSearchTerm)
+				let myurl = "./search.html?search=" + this.nameSearchTerm
+				// this.redirect("./search.html?search=" + this.nameSearchTerm);
+				$("#content").animate({opacity: 0}, Page.fade, () => {
+					window.location.href = myurl;
+				});
 			}
 		})
 	}
@@ -267,5 +273,21 @@ export default class PageGames extends Page {
 		clone.find(".game-favorite-icon").attr("src", `img/favorite_${game.wishlisted ? "yes" : "no"}.png`);
 		clone.find(".game").on("click", this.populateDetailView.bind(this, game));
 		return clone;
+	}
+
+	redirect(url) {
+		// TODO: persist settings
+		$("#content").animate({opacity: 0}, Page.fade, () => {
+			window.location.href = url;
+		});
+	}
+
+	// /**
+	//  * Override to implement searching by name
+	//  */
+	getNameSearchTerm() {
+		console.log("Search: " + this.urlParams.get('search'))
+		this.nameSearchTerm = this.urlParams.get('search')
+		return this.nameSearchTerm;
 	}
 }

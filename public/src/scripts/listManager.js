@@ -76,22 +76,9 @@ export default class ListManager {
 	*/
 	getList(callback) {
 		//TODO: get a list of games
+		console.log("Search Term: " + this.nameSearchTerm)
 		console.log("Get list called");
 		console.log(this.store);
-		// if(!this.store){
-		// 	this.ref.getList((snapshots) => {
-		// 		let filteredSnapshots = this.filterFunction(snapshots)
-		// 		ListManager.instance.snapshots = snapshots;
-		// 		if(callback) callback();
-		// 	})
-		// }
-		// else {
-		// 	console.log("Store is: " + this.store);
-		// 	this.ref.getStoreList(this.store, (snapshots) => {
-		// 		ListManager.instance.snapshots = snapshots;
-		// 		if(callback) callback();
-		// 	})
-		// }
 		if(this.store){
 			console.log("Store is: " + this.store);
 			this.ref.getStoreList(this.store, (snapshots) => {
@@ -99,7 +86,11 @@ export default class ListManager {
 				if(callback) callback();
 			})
 		}else if(this.nameSearchTerm){
-			this.ref.searchByName(this.nameSearchTerm) 
+			this.ref.searchByName(this.nameSearchTerm, (snapshots)=>{
+				let filteredSnapshots = this.filterFunction(snapshots)
+				ListManager.instance.snapshots = snapshots;
+				if(callback) callback();
+			}) 
 		}else{
 			this.ref.getList((snapshots) => {
 				let filteredSnapshots = this.filterFunction(snapshots)

@@ -622,13 +622,21 @@ app.post('/unwishlist/:gameID/:user', async function(req, res){
 })
 
 //Search games by name
-app.post('searchnames/:name/:user', async function(req, res){
+app.post('/searchByName/:name', async function(req, res){
     const name = req.params.name
-    const user = req.params.user
-    redisClient.keys('game:*' + name + '*', function(err, reply){
-        console.log(reply)
-        //do some things here!!!!!!
-    })
+    console.log('help!')
+
+    results = await ravenSession.query({collection: "Games"})
+            .whereEquals("title", name)
+            .all()
+
+    console.log(results)
+    res.send(results)
+
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    // res.sendStatus(200)
 
 })
 

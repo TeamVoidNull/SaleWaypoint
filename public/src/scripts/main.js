@@ -12,6 +12,7 @@ import PageStores from "./page/stores.js";
 import PageWishlist from "./page/wishlist.js";
 import PageRecommendations from "./page/recommendations.js";
 import PageReviews from "./page/reviews.js";
+import PageSearch from "./page/search.js"
 
 /**
  * Page instance
@@ -36,6 +37,7 @@ function initializePage() {
 	if (document.querySelector("#pageRecommendations")) page = new PageRecommendations();
 	if (document.querySelector("#pageReviews")) page = new PageReviews();
 	if (document.querySelector("#pageStores")) page = new PageStores();
+	if (document.querySelector('#pageSearch')) page = new PageSearch();
 
 	if (page) {
 		Page.instance = page;

@@ -166,11 +166,9 @@ export default class Raven{
     }
 
     async searchByName(name, callback){
-        console.log("Getting list of games");
-        let user = (document.cookie.match(/^(?:.*;)?\s*user\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
+        console.log("Searching games");
         let req = new XMLHttpRequest();
-        console.log(user)
-        req.open("GET", Raven.url + "searchByName/" + name + '/' + user, true);
+        req.open("POST", Raven.url + "searchByName/" + name, true);
         req.onload = () => {
             if(req.status == 200){
                 console.log("Searched games successfully");
