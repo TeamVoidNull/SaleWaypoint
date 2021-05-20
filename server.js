@@ -83,6 +83,7 @@ try {
     }
     else {
         //Write a placeholder item for the start of the log
+        actionsLog.push({"n": 0})
         fs.writeFileSync(actionsLogFile, '{"n":0}')
     }
 }catch(err){
@@ -94,7 +95,6 @@ try {
 function checkActions(){
     if(!(actionsCompleted.raven == actionsLog.length - 1)) updateRaven();
     if(!(actionsCompleted.neo == actionsLog.length - 1)) updateNeo();
-    if(!(actionsCompleted.redis == actionsLog.length - 1)) updateRedis();
 }
 
 //Sleep function
@@ -126,7 +126,25 @@ async function reconnectRaven(){
 }
 
 async function reconnectNeo(){
-    
+    if(reconnecting.neo) return;
+    reconnecting.neo = true;
+    while(true){
+        const session = neoDriver.session()
+        try{
+            console.log("Attempting neo4j ping");
+            await session.run("RETURN null;")
+            console.log("neo4j responded");
+            reconnecting.neo = false;
+            await session.close()
+            updateNeo();
+            return
+        }catch(error){
+            //Do nothing and try again
+            console.log("Failed eno4j reconnection, waiting to try again.");
+            await session.close()
+            await sleep(5000)
+        }
+    }
 }
 
 //Check all log entries since last update and apply actions
@@ -134,8 +152,8 @@ async function updateRaven(){
     console.log("Catching up ravendb");
     for(let i = actionsCompleted.raven + 1; i < actionsLog.length; i++){
         let entry = actionsLog[i];
-        console.log("Updating entry " + i + " of " + (actionsLog.length - 1));
-        if(entry.action = Actions.create){
+        console.log("Updating raven entry " + i + " of " + (actionsLog.length - 1));
+        if(entry.action == Actions.create){
             try{
                 console.log("Attempting to add game to raven");
                 await ravenSession.store(entry.data);
@@ -148,13 +166,96 @@ async function updateRaven(){
                 reconnectRaven();
                 return;
             }
+        }else if(entry.action == Actions.update){
+            console.log("TODO: Update");
+        }else if(entry.action == Actions.addUser){
+            try{
+                await ravenSession.store(entry.data)
+                await ravenSession.saveChanges();
+            }catch(error){
+                console.log("Error connecting to raven");
+                reconnectRaven();
+            }
+        }else{
+            console.log("Not a raven action");
         }
     }
+    actionsCompleted.raven = actionsLog.length - 1;
+    fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
     console.log("Raven is now up to date");
 }
 
 async function updateNeo(){
+    console.log("Catching up neo4j");
+    for(let i = actionsCompleted.neo + 1; i < actionsLog.length; i++){
+        let entry = actionsLog[i];
+        console.log("Updating neo entry " + i + " of " + (actionsLog.length - 1));
+        const session = neoDriver.session()
+        if(entry.action == Actions.create){
+            try{
+                let newGame = entry.data;
+                console.log("Adding game to neo4j");
+                const query = `CREATE (a:Game {gameId: "${newGame.id}", title: "${newGame.title}"}) RETURN a`
+                await session.run(query)
+                actionsCompleted.neo = i;
+                await fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+                console.log("Successfully added game to neo");
+            }catch(err){
+                console.log("Error connecting to neo4j");
+                await session.close()
+                reconnectNeo();
+            }finally{
+                await session.close()
+            }
+        }else if (entry.action == Actions.wishlist){
+            const addq  = 
+                `MATCH (a:User) WHERE a.username = "${entry.data.user}"
+                MATCH (b:Game) WHERE b.gameId = "${entry.data.game}"
+                CREATE (a)-[r:wishlists]->(b)
+                RETURN (r)
+                `
+            const remq = 
+                `MATCH (a:User) WHERE a.username = "${entry.data.user}"
+                MATCH (b:Game) WHERE b.gameId = "${entry.data.game}"
+                MATCH (a)-[r:wishlists]->(b)
+                DELETE (r)
+                `
+            let query = entry.data.addWishlist ? addq : remq;
 
+            try{
+                console.log("Attempting to update wishlist status");
+                await session.run(query)
+                actionsCompleted.neo = i;
+                await fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+                console.log("Successfully updated wishlist");
+            }catch(err){
+                console.log("Error connecting to neo4j");
+                reconnectNeo();
+            }finally{
+                await session.close()
+            }
+        }else if(entry.action == Actions.addUser){
+            const query = `CREATE (a:User {username: "${entry.data.username}"}) RETURN a`
+            try{
+                console.log("Attempting to add user to neo4j");
+                await session.run(query)
+                actionsCompleted.neo = i;
+                fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+                console.log("Successfully added user");
+            }catch(err){
+                console.log("Error connecting to neo4j");
+                await session.close()
+                reconnectNeo();
+            }finally{
+                await session.close()
+            }
+        }else{
+            console.log("Not a neo action");
+        }
+    }
+    actionsCompleted.neo = actionsLog.length - 1;
+    fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+    console.log("Neo4J is now up to date");
 }
 
 app.use('/', express.static("./public") );
@@ -193,7 +294,6 @@ app.get('/getGamesByStore/:store', async function(req, res){
     let store = req.params.store;
     console.log("Store ", store)
     redisClient.lrange(store, 0, -1, function(err, reply){
-        console.log(reply)
         ravenSession.query({collection: "Games"})
             .whereIn("id", reply)
             .orderBy("title")
@@ -265,6 +365,11 @@ app.post('/addGame', async function(req, res){
     const query = `CREATE (a:Game {gameId: "${newGame.id}", title: "${newGame.title}"}) RETURN a`
     try{
         await session.run(query)
+        actionsCompleted.neo += 1;
+    }catch(err){
+        console.log("Error connecting to neo4j");
+        await session.close()
+        reconnectNeo();
     }finally{
         await session.close()
     }
@@ -279,6 +384,7 @@ app.post('/addGame', async function(req, res){
 
 //Add game to wishlist
 app.post('/wishlist/:gameID/:user', async function(req, res){
+    console.log("Wishlisting game");
     game = req.params.gameID
     user = req.params.user
 
@@ -290,11 +396,27 @@ app.post('/wishlist/:gameID/:user', async function(req, res){
         CREATE (a)-[r:wishlists]->(b)
         RETURN (r)
     `
+
+    let action = {
+        action: Actions.wishlist,
+        data: {
+            user: user,
+            game: game,
+            addWishlist: true
+        }
+    }
+    actionsLog.push(action);
+
+    fs.appendFile(actionsLogFile, "," + JSON.stringify(action), () => {});
     try{
         await session.run(query)
+        actionsCompleted.neo += 1;
+        fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+    }catch(err){
+        console.log("Error connecting to neo4j");
+        reconnectNeo();
     }finally{
         await session.close()
-        
     }
 
     res.setHeader("Access-Control-Allow-Origin", "*")
@@ -309,6 +431,17 @@ app.post('/unwishlist/:gameID/:user', async function(req, res){
     game = req.params.gameID
     user = req.params.user
 
+    let action = {
+            action: Actions.wishlist,
+            data: {
+                user: user,
+                game: game,
+                addWishlist: false
+            }
+        }
+    actionsLog.push(action);
+    fs.appendFile(actionsLogFile, "," + JSON.stringify(action), () => {});
+
     //add relationship in neo
     const session = neoDriver.session()
     const query = 
@@ -317,11 +450,16 @@ app.post('/unwishlist/:gameID/:user', async function(req, res){
         MATCH (a)-[r:wishlists]->(b)
         DELETE (r)
     `
+
     try{
         await session.run(query)
+        actionsCompleted.neo += 1;
+        fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+    }catch(err){
+        console.log("Error connecting to neo4j");
+        reconnectNeo();
     }finally{
         await session.close()
-        
     }
 
     res.setHeader("Access-Control-Allow-Origin", "*")
@@ -345,14 +483,32 @@ app.post('/register', async function(req, res){
         last_name: req.body.last_name,
         "@metadata": {"@collection": "Users"}
     }
-    await ravenSession.store(newUser)
-    await ravenSession.saveChanges();
 
+    let action = {
+        action: Actions.user,
+        data: newUser
+    }
+    actionsLog.push(action);
+    fs.appendFile(actionsLogFile, "," + JSON.stringify(action), () => {});
+
+    try{
+        await ravenSession.store(newUser)
+        await ravenSession.saveChanges();
+    }catch(error){
+        console.log("Error connecting to raven");
+        reconnectRaven();
+    }
+    
     //Add to neo
     const session = neoDriver.session()
     const query = `CREATE (a:User {username: "${req.body.username}"}) RETURN a`
     try{
         await session.run(query)
+        actionsCompleted.neo += 1;
+        fs.writeFile(completedFile, JSON.stringify(actionsCompleted), () => {});
+    }catch(err){
+        console.log("Error connecting to neo4j");
+        reconnectNeo();
     }finally{
         await session.close()
     }
